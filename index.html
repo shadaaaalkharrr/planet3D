@@ -365,7 +365,13 @@
                 <h3 class="text-3xl font-bold text-white mb-2">Analisis AI Selesai!</h3>
                 <p class="text-gray-300">Skor Pengetahuan Kosmos Anda:</p>
                 <div class="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-500 my-4" id="final-score">0</div>
-                <p id="result-message" class="text-sm text-gray-400 mb-6 italic">"Pesan dari AI akan muncul di sini"</p>
+                <p id="result-message" class="text-sm text-gray-400 mb-4 italic">"Pesan dari AI akan muncul di sini"</p>
+                
+                <!-- Kunci Jawaban & Review -->
+                <div id="quiz-review" class="text-left max-h-48 overflow-y-auto custom-scroll space-y-3 p-4 bg-black/40 rounded-xl border border-white/10 text-xs md:text-sm mb-6 shadow-inner">
+                    <!-- Diisi oleh JS -->
+                </div>
+
                 <button onclick="AIQuiz.triggerAIGeneration()" class="w-full bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-500 hover:to-orange-500 text-white font-bold px-6 py-3.5 rounded-xl transition-all shadow-[0_0_15px_rgba(234,179,8,0.4)]">
                     <i class="fa-solid fa-rotate-right mr-2"></i> Buat Kuis Baru Lagi
                 </button>
@@ -622,7 +628,7 @@
                 { q: "Komet Halley dapat dilihat dari Bumi setiap berapa tahun sekali?", opts: ["25 Tahun", "50 Tahun", "76 Tahun", "100 Tahun"], ans: 2 },
                 { q: "Planet terpanas di tata surya kita adalah Venus, bukan Merkurius. Apa alasannya?", opts: ["Dekat matahari", "Efek rumah kaca ekstrem", "Inti magma terbuka", "Sering ditabrak meteor"], ans: 1 }
             ],
-            soalAktif: [], currIdx: 0, score: 0,
+            soalAktif: [], userAnswers: [], currIdx: 0, score: 0,
             
             triggerAIGeneration: () => {
                 UI.openModal('quiz-modal');
@@ -637,7 +643,7 @@
                         soal.opts = soal.opts.sort(() => 0.5 - Math.random());
                         soal.ans = soal.opts.indexOf(jawabanBenarTeks);
                     });
-                    AIQuiz.currIdx = 0; AIQuiz.score = 0;
+                    AIQuiz.currIdx = 0; AIQuiz.score = 0; AIQuiz.userAnswers = [];
                     document.getElementById('ai-loading-screen').classList.add('hidden');
                     document.getElementById('quiz-container').classList.remove('hidden');
                     AIQuiz.load();
@@ -660,6 +666,7 @@
             },
             
             answer: (idx) => {
+                AIQuiz.userAnswers.push(idx);
                 if(idx === AIQuiz.soalAktif[AIQuiz.currIdx].ans) AIQuiz.score += (100 / AIQuiz.soalAktif.length);
                 AIQuiz.currIdx++;
                 if(AIQuiz.currIdx < AIQuiz.soalAktif.length) AIQuiz.load();
@@ -680,6 +687,26 @@
                 
                 document.getElementById('result-message').innerText = msg;
                 document.getElementById('result-icon').innerText = icon;
+
+                // Tampilkan Review Jawaban
+                const reviewDiv = document.getElementById('quiz-review');
+                reviewDiv.innerHTML = '<h4 class="text-white font-bold mb-3 border-b border-white/20 pb-2"><i class="fa-solid fa-list-check mr-2"></i>Kunci Jawaban</h4>';
+                
+                AIQuiz.soalAktif.forEach((soal, i) => {
+                    const isCorrect = AIQuiz.userAnswers[i] === soal.ans;
+                    const userAnsText = soal.opts[AIQuiz.userAnswers[i]];
+                    const correctAnsText = soal.opts[soal.ans];
+                    
+                    reviewDiv.innerHTML += `
+                        <div class="mb-4 last:mb-0">
+                            <p class="text-gray-200 mb-1 leading-relaxed">${i+1}. ${soal.q}</p>
+                            <p class="${isCorrect ? 'text-green-400' : 'text-red-400'} font-medium">
+                                <i class="fa-solid ${isCorrect ? 'fa-check' : 'fa-xmark'} mr-1"></i> Jawabanmu: ${userAnsText}
+                            </p>
+                            ${!isCorrect ? `<p class="text-yellow-400 font-medium"><i class="fa-solid fa-arrow-right mr-1"></i> Benar: ${correctAnsText}</p>` : ''}
+                        </div>
+                    `;
+                });
             }
         };
 
