@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kosmos Edukasi & Eksplorasi</title>
+    <title>Kosmos Edukasi & Eksplorasi - Ultimate Edition</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -22,21 +22,22 @@
         .glass { background: rgba(15, 15, 25, 0.4); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.05); }
         .glass-panel { background: rgba(10, 10, 15, 0.65); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5); }
         
-        /* Custom Scrollbar for Planet Nav */
+        /* Custom Scrollbar */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
         /* Modals */
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 100; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: all 0.3s ease; }
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); z-index: 100; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: all 0.3s ease; }
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
         .modal-content { transform: scale(0.95); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         .modal-overlay.active .modal-content { transform: scale(1); }
 
-        /* Auth & Toasts */
+        /* Auth Views */
         .auth-view { display: none; opacity: 0; transition: opacity 0.3s ease; }
         .auth-view.active { display: block; opacity: 1; animation: fadeIn 0.4s ease forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
+        /* Toasts */
         #toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
         .toast { padding: 12px 20px; border-radius: 8px; font-size: 13px; font-weight: 500; color: white; display: flex; align-items: center; gap: 10px; transform: translateX(120%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 12px rgba(0,0,0,0.5); backdrop-filter: blur(8px); }
         .toast.show { transform: translateX(0); }
@@ -44,21 +45,24 @@
         .toast-error { background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.5); }
         .toast-warning { background: rgba(234, 179, 8, 0.2); border: 1px solid rgba(234, 179, 8, 0.5); }
 
-        /* Helpers */
+        /* AI Scan Animation */
+        .ai-scan-line { width: 100%; height: 2px; background: linear-gradient(90deg, transparent, #eab308, transparent); position: absolute; top: 0; left: 0; animation: scan 1.5s infinite linear; }
+        @keyframes scan { 0% { top: 0%; opacity: 0; } 50% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
+
         .hidden-screen { display: none !important; }
         #canvas-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; }
     </style>
 </head>
 <body>
 
-    <!-- LAYER AUTENTIKASI -->
-    <div id="auth-screen" class="fixed inset-0 z-50 flex items-center justify-center bg-[url('https://images.unsplash.com/photo-1462331940025-496dfbfc7564?q=80&w=2048&auto=format&fit=crop')] bg-cover bg-center">
+    <!-- LAYER AUTENTIKASI (Tengah Presisi) -->
+    <div id="auth-screen" class="fixed inset-0 z-50 flex items-center justify-center min-h-screen w-full bg-[url('https://images.unsplash.com/photo-1462331940025-496dfbfc7564?q=80&w=2048&auto=format&fit=crop')] bg-cover bg-center overflow-y-auto py-8">
         <div class="absolute inset-0 bg-black/80 backdrop-blur-md"></div>
         
         <!-- Toast Container -->
         <div id="toast-container"></div>
 
-        <div class="glass-panel p-8 rounded-3xl w-full max-w-md relative z-10 mx-4 overflow-hidden border-t border-white/20 shadow-[0_0_50px_rgba(0,0,0,0.8)]">
+        <div class="glass-panel p-8 rounded-3xl w-[90%] max-w-md relative z-10 m-auto border-t border-white/20 shadow-[0_0_50px_rgba(0,0,0,0.8)] flex flex-col justify-center">
             
             <div class="text-center mb-6">
                 <div class="w-14 h-14 bg-blue-500/10 text-blue-400 rounded-full flex items-center justify-center text-2xl mx-auto mb-3 border border-blue-400/30 shadow-[0_0_20px_rgba(59,130,246,0.2)]">
@@ -83,26 +87,13 @@
                             <i class="fa-regular fa-eye"></i>
                         </button>
                     </div>
-                    <div class="flex items-center justify-between text-xs">
-                        <label class="flex items-center text-gray-400 cursor-pointer hover:text-gray-300">
-                            <input type="checkbox" id="login-remember" class="mr-2 rounded border-gray-600 bg-gray-700 accent-blue-500">
-                            Ingat Saya
-                        </label>
-                        <a href="#" onclick="Auth.switchView('view-forgot')" class="text-blue-400 hover:text-blue-300">Lupa Password?</a>
-                    </div>
                     
-                    <div id="unverified-alert" class="hidden bg-yellow-500/10 border border-yellow-500/30 text-yellow-400 text-xs p-3 rounded-xl mt-2 flex justify-between items-center">
-                        <span>Email belum diverifikasi.</span>
-                        <button type="button" onclick="Auth.resendVerification()" class="underline font-semibold hover:text-yellow-300">Kirim Ulang</button>
-                    </div>
-
                     <button type="submit" id="btn-login" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 rounded-xl transition-all text-sm mt-2 flex justify-center items-center gap-2">
                         <span>Login Email</span> <i class="fa-solid fa-arrow-right"></i>
                     </button>
                 </form>
 
-                <!-- FITUR LOGIN GOOGLE -->
-                <div class="mt-4 flex items-center">
+                <div class="mt-5 flex items-center">
                     <div class="flex-grow border-t border-gray-700"></div>
                     <span class="px-3 text-xs text-gray-500">Atau masuk dengan</span>
                     <div class="flex-grow border-t border-gray-700"></div>
@@ -112,9 +103,8 @@
                     <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-5 h-5" alt="Google">
                     <span>Lanjutkan dengan Google</span>
                 </button>
-                <!-- END FITUR LOGIN GOOGLE -->
-
-                <p class="text-center text-xs text-gray-400 mt-4">
+                
+                <p class="text-center text-xs text-gray-400 mt-5">
                     Belum punya akun? <a href="#" onclick="Auth.switchView('view-register')" class="text-blue-400 font-semibold hover:text-blue-300">Daftar Sekarang</a>
                 </p>
             </div>
@@ -134,13 +124,8 @@
                     </div>
                     <div class="relative">
                         <i class="fa-solid fa-lock absolute left-4 top-3.5 text-gray-500 text-sm"></i>
-                        <input type="password" id="reg-password" required placeholder="Password (Min. 8, Huruf & Angka)" class="w-full bg-black/40 border border-gray-700 rounded-xl py-3 pl-10 pr-10 focus:border-blue-500 outline-none text-white text-sm transition-all">
+                        <input type="password" id="reg-password" required placeholder="Password Baru" class="w-full bg-black/40 border border-gray-700 rounded-xl py-3 pl-10 pr-10 focus:border-blue-500 outline-none text-white text-sm transition-all">
                         <button type="button" onclick="Auth.togglePassword('reg-password', this)" class="absolute right-4 top-3.5 text-gray-500 hover:text-gray-300"><i class="fa-regular fa-eye"></i></button>
-                    </div>
-                    <div class="relative">
-                        <i class="fa-solid fa-lock absolute left-4 top-3.5 text-gray-500 text-sm"></i>
-                        <input type="password" id="reg-confirm" required placeholder="Konfirmasi Password" class="w-full bg-black/40 border border-gray-700 rounded-xl py-3 pl-10 pr-10 focus:border-blue-500 outline-none text-white text-sm transition-all">
-                        <button type="button" onclick="Auth.togglePassword('reg-confirm', this)" class="absolute right-4 top-3.5 text-gray-500 hover:text-gray-300"><i class="fa-regular fa-eye"></i></button>
                     </div>
                     
                     <button type="submit" id="btn-register" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-3.5 rounded-xl transition-all text-sm mt-4">Daftar Akun</button>
@@ -149,24 +134,6 @@
                     </p>
                 </form>
             </div>
-
-            <!-- VIEW: FORGOT PASSWORD -->
-            <div id="view-forgot" class="auth-view">
-                <h2 class="text-white font-semibold text-lg mb-1">Reset Password</h2>
-                <p class="text-gray-400 text-xs mb-5">Masukkan email Anda untuk menerima tautan reset.</p>
-                <form id="form-forgot" class="space-y-4">
-                    <div class="relative">
-                        <i class="fa-regular fa-envelope absolute left-4 top-3.5 text-gray-500 text-sm"></i>
-                        <input type="email" id="forgot-email" required placeholder="Alamat Email" class="w-full bg-black/40 border border-gray-700 rounded-xl py-3 pl-10 pr-4 focus:border-blue-500 outline-none text-white text-sm transition-all">
-                    </div>
-                    
-                    <button type="submit" id="btn-forgot" class="w-full bg-yellow-600 hover:bg-yellow-500 text-white font-bold py-3.5 rounded-xl transition-all text-sm mt-4">Kirim Link Reset</button>
-                    <p class="text-center text-xs text-gray-400 mt-4">
-                        Ingat password? <a href="#" onclick="Auth.switchView('view-login')" class="text-blue-400 font-semibold hover:text-blue-300">Kembali ke Login</a>
-                    </p>
-                </form>
-            </div>
-
         </div>
     </div>
 
@@ -189,8 +156,8 @@
                     <i class="fa-solid fa-ruler-horizontal text-purple-400"></i> <span class="hidden md:inline">Kalkulator</span>
                 </button>
                 <div class="w-px bg-white/10 my-1"></div>
-                <button onclick="UI.openModal('quiz-modal')" class="hover:bg-white/10 text-gray-300 hover:text-white px-3 md:px-4 py-1.5 rounded-lg text-xs md:text-sm transition-all flex items-center gap-2">
-                    <i class="fa-solid fa-brain text-yellow-400"></i> <span class="hidden md:inline">Kuis Random</span>
+                <button onclick="AIQuiz.triggerAIGeneration()" class="hover:bg-white/10 text-gray-300 hover:text-white px-3 md:px-4 py-1.5 rounded-lg text-xs md:text-sm transition-all flex items-center gap-2 relative overflow-hidden group">
+                    <i class="fa-solid fa-robot text-yellow-400 group-hover:animate-pulse"></i> <span class="hidden md:inline">Generate Kuis AI</span>
                 </button>
             </div>
 
@@ -273,23 +240,48 @@
         </div>
     </div>
 
-    <!-- MODAL KUIS -->
+    <!-- MODAL AI KUIS -->
     <div id="quiz-modal" class="modal-overlay">
-        <div class="glass-panel modal-content w-full max-w-xl p-8 rounded-3xl relative mx-4 border border-yellow-500/30">
-            <button onclick="UI.closeModal('quiz-modal')" class="absolute top-5 right-5 text-gray-400 hover:text-white text-xl"><i class="fa-solid fa-xmark"></i></button>
-            <div id="quiz-container">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-xl font-bold text-white"><i class="fa-solid fa-brain text-yellow-400 mr-2"></i>Kuis Kosmos Acak</h3>
-                    <span id="quiz-progress" class="text-sm text-gray-400">1/5</span>
+        <div class="glass-panel modal-content w-full max-w-xl p-8 rounded-3xl relative mx-4 border border-yellow-500/30 overflow-hidden">
+            <button onclick="UI.closeModal('quiz-modal')" class="absolute top-5 right-5 text-gray-400 hover:text-white text-xl z-20"><i class="fa-solid fa-xmark"></i></button>
+            
+            <!-- Layar Loading AI -->
+            <div id="ai-loading-screen" class="flex flex-col items-center justify-center py-10 relative z-10">
+                <div class="relative w-24 h-24 mb-6">
+                    <div class="absolute inset-0 border-4 border-yellow-500/20 rounded-full"></div>
+                    <div class="absolute inset-0 border-4 border-yellow-400 rounded-full border-t-transparent animate-spin"></div>
+                    <i class="fa-solid fa-robot absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-3xl text-yellow-400"></i>
                 </div>
-                <h4 id="quiz-question" class="text-lg text-gray-200 mb-6">Pertanyaan?</h4>
-                <div id="quiz-options" class="space-y-3 mb-6"></div>
+                <h3 class="text-xl font-bold text-white mb-2">AI Sedang Menyusun Kuis...</h3>
+                <p class="text-gray-400 text-sm text-center">Menganalisis data tata surya & mengacak pertanyaan khusus untukmu.</p>
+                <div class="w-full h-1.5 bg-gray-700 rounded-full mt-6 overflow-hidden relative">
+                    <div class="h-full bg-yellow-400 w-1/2 animate-[pulse_1s_ease-in-out_infinite]"></div>
+                    <div class="ai-scan-line"></div>
+                </div>
             </div>
-            <div id="quiz-result" class="hidden text-center py-6">
-                <i class="fa-solid fa-trophy text-5xl text-yellow-400 mb-4"></i>
-                <h3 class="text-3xl font-bold text-white mb-2">Kuis Selesai!</h3>
-                <p class="text-gray-300">Skor Anda: <span id="final-score" class="text-yellow-400 font-bold text-2xl">0</span> / 100</p>
-                <button onclick="Quiz.start()" class="mt-6 w-full bg-yellow-500 hover:bg-yellow-400 text-black font-bold px-6 py-3 rounded-xl transition-colors">Coba Soal Acak Lainnya</button>
+
+            <!-- Kontainer Pertanyaan Kuis -->
+            <div id="quiz-container" class="hidden relative z-10">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-robot text-yellow-400"></i> Kuis AI Kosmos
+                    </h3>
+                    <span id="quiz-progress" class="text-sm bg-yellow-500/20 text-yellow-400 px-3 py-1 rounded-full border border-yellow-500/30">1/5</span>
+                </div>
+                <h4 id="quiz-question" class="text-lg text-gray-200 mb-6 leading-relaxed">Pertanyaan?</h4>
+                <div id="quiz-options" class="space-y-3 mb-2"></div>
+            </div>
+
+            <!-- Hasil Kuis -->
+            <div id="quiz-result" class="hidden text-center py-6 relative z-10">
+                <div id="result-icon" class="text-6xl mb-4"></div>
+                <h3 class="text-3xl font-bold text-white mb-2">Analisis AI Selesai!</h3>
+                <p class="text-gray-300">Skor Pengetahuan Kosmos Anda:</p>
+                <div class="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-500 my-4" id="final-score">0</div>
+                <p id="result-message" class="text-sm text-gray-400 mb-6 italic">"Pesan dari AI akan muncul di sini"</p>
+                <button onclick="AIQuiz.triggerAIGeneration()" class="w-full bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-500 hover:to-orange-500 text-white font-bold px-6 py-3.5 rounded-xl transition-all shadow-[0_0_15px_rgba(234,179,8,0.4)]">
+                    <i class="fa-solid fa-rotate-right mr-2"></i> Buat Kuis Baru Lagi
+                </button>
             </div>
         </div>
     </div>
@@ -297,14 +289,8 @@
     <!-- LOGIKA JAVASCRIPT -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { 
-            getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, 
-            onAuthStateChanged, sendEmailVerification, sendPasswordResetEmail, 
-            updateProfile, setPersistence, browserLocalPersistence, browserSessionPersistence, signOut,
-            GoogleAuthProvider, signInWithPopup // API GOOGLE LOGIN NYATA
-        } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
-        // API KEY FIREBASE ANDA
         const firebaseConfig = {
             apiKey: "AIzaSyDOcmKdA2RD_xNuKTrLYbs9kuwza0nGqzQ",
             authDomain: "planet-22486.firebaseapp.com",
@@ -317,12 +303,12 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
 
-        // DATA PLANET TATA SURYA
+        // DATA PLANET
         const PLANETS_DATA = [
             { id: 'sun', name: 'Matahari', radius: 4, distance: 0, speed: 0, color: 0xffcc00, icon: 'fa-sun', desc: 'Pusat tata surya kita, sebuah bintang deret utama tipe G.', type: 'Bintang', realDist: 0 },
             { id: 'mercury', name: 'Merkurius', radius: 0.5, distance: 8, speed: 0.04, color: 0xa8a8a8, icon: 'fa-circle', desc: 'Planet terkecil dan terdekat dengan Matahari.', type: 'Planet Terestrial', realDist: 57.9 },
             { id: 'venus', name: 'Venus', radius: 0.9, distance: 12, speed: 0.015, color: 0xe0c38c, icon: 'fa-circle', desc: 'Planet terpanas di tata surya dengan atmosfer tebal.', type: 'Planet Terestrial', realDist: 108.2 },
-            { id: 'earth', name: 'Bumi', radius: 1, distance: 17, speed: 0.01, color: 0x4b90ff, icon: 'fa-earth-americas', desc: 'Satu-satunya planet yang diketahui memiliki kehidupan.', type: 'Planet Terestrial', realDist: 149.6 },
+            { id: 'earth', name: 'Bumi', radius: 1, distance: 17, speed: 0.01, color: 0x2b70d4, icon: 'fa-earth-americas', desc: 'Satu-satunya planet yang diketahui memiliki kehidupan.', type: 'Planet Terestrial', realDist: 149.6 }, // Base blue, green added later
             { id: 'mars', name: 'Mars', radius: 0.7, distance: 22, speed: 0.008, color: 0xff5733, icon: 'fa-circle', desc: 'Sering disebut Planet Merah karena kandungan besi oksida.', type: 'Planet Terestrial', realDist: 227.9 },
             { id: 'jupiter', name: 'Jupiter', radius: 2.2, distance: 32, speed: 0.002, color: 0xc88b3a, icon: 'fa-circle', desc: 'Planet terbesar di tata surya, raksasa gas pelindung bumi.', type: 'Raksasa Gas', realDist: 778.5 },
             { id: 'saturn', name: 'Saturnus', radius: 1.8, distance: 42, speed: 0.0009, color: 0xe3d599, icon: 'fa-ring', desc: 'Dikenal dengan sistem cincin es-nya yang menakjubkan.', type: 'Raksasa Gas', hasRing: true, realDist: 1434 },
@@ -330,7 +316,7 @@
             { id: 'neptune', name: 'Neptunus', radius: 1.3, distance: 62, speed: 0.0001, color: 0x3b59ff, icon: 'fa-circle', desc: 'Planet terjauh, raksasa es dengan angin badai kencang.', type: 'Raksasa Es', realDist: 4495 }
         ];
 
-        // LOGIKA TOAST NOTIFIKASI
+        // LOGIKA TOAST
         const Toast = {
             show: (msg, type = 'success') => {
                 const container = document.getElementById('toast-container');
@@ -339,13 +325,8 @@
                 const icon = type === 'success' ? 'fa-check-circle text-green-400' : type === 'error' ? 'fa-circle-exclamation text-red-400' : 'fa-triangle-exclamation text-yellow-400';
                 toast.innerHTML = `<i class="fa-solid ${icon} text-lg"></i> <span>${msg}</span>`;
                 container.appendChild(toast);
-                
                 requestAnimationFrame(() => toast.classList.add('show'));
-                
-                setTimeout(() => {
-                    toast.classList.remove('show');
-                    setTimeout(() => toast.remove(), 300);
-                }, 5000); // Tampil 5 detik agar pesan error terbaca
+                setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 300); }, 3000);
             }
         };
 
@@ -354,170 +335,72 @@
             switchView: (viewId) => {
                 document.querySelectorAll('.auth-view').forEach(el => el.classList.remove('active'));
                 document.getElementById(viewId).classList.add('active');
-                document.getElementById('unverified-alert').classList.add('hidden');
             },
-
             togglePassword: (inputId, btn) => {
-                const input = document.getElementById(inputId);
-                const icon = btn.querySelector('i');
-                if(input.type === 'password') {
-                    input.type = 'text';
-                    icon.classList.replace('fa-eye', 'fa-eye-slash');
-                } else {
-                    input.type = 'password';
-                    icon.classList.replace('fa-eye-slash', 'fa-eye');
-                }
+                const input = document.getElementById(inputId); const icon = btn.querySelector('i');
+                if(input.type === 'password') { input.type = 'text'; icon.classList.replace('fa-eye', 'fa-eye-slash'); } 
+                else { input.type = 'password'; icon.classList.replace('fa-eye-slash', 'fa-eye'); }
             },
-
-            // --- LOGIN GOOGLE SUNGGUHAN ---
             googleLogin: async () => {
                 const btn = document.getElementById('btn-google');
-                const originalHtml = btn.innerHTML;
-                btn.disabled = true;
-                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menghubungkan Google...';
-
-                const provider = new GoogleAuthProvider();
-                
+                const originalHtml = btn.innerHTML; btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menghubungkan Google...';
                 try {
-                    // Memanggil popup resmi Google
-                    const result = await signInWithPopup(auth, provider);
+                    const result = await signInWithPopup(auth, new GoogleAuthProvider());
                     Toast.show(`Selamat datang, ${result.user.displayName}!`, 'success');
-                    
                 } catch (error) {
-                    console.error("Detail Error Google Login:", error);
-                    
-                    // Menangkap error spesifik untuk memandu user
-                    if (error.code === 'auth/unauthorized-domain') {
-                        Toast.show('GAGAL: Domain ini belum didaftarkan di Firebase Console. Tambahkan domain Anda di menu Authentication > Settings > Authorized domains.', 'error');
-                    } else if (error.code === 'auth/popup-closed-by-user') {
-                        Toast.show('Login dibatalkan oleh pengguna.', 'warning');
-                    } else if (error.code === 'auth/operation-not-supported-in-this-environment') {
-                        Toast.show('GAGAL: Lingkungan ini memblokir Popup Google. Jalankan di localhost atau hosting asli.', 'error');
-                    } else {
-                        Toast.show('Gagal terhubung dengan Google: ' + error.message, 'error');
-                    }
-                } finally {
-                    btn.disabled = false;
-                    btn.innerHTML = originalHtml;
-                }
+                    if(error.code !== 'auth/popup-closed-by-user') Toast.show('Gagal: ' + error.message, 'error');
+                } finally { btn.disabled = false; btn.innerHTML = originalHtml; }
             },
-
-            register: async (e) => {
-                e.preventDefault();
-                const name = document.getElementById('reg-name').value.trim();
-                const email = document.getElementById('reg-email').value.trim();
-                const pass = document.getElementById('reg-password').value;
-                const confirm = document.getElementById('reg-confirm').value;
-                const btn = document.getElementById('btn-register');
-
-                if(pass !== confirm) return Toast.show('Konfirmasi password tidak cocok!', 'error');
-
-                btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Memproses...';
-                
-                try {
-                    const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
-                    await updateProfile(userCredential.user, { displayName: name });
-                    await sendEmailVerification(userCredential.user);
-                    await signOut(auth); // Memaksa user untuk verifikasi
-                    
-                    Toast.show('Registrasi berhasil! Silakan cek email Anda untuk verifikasi.', 'success');
-                    Auth.switchView('view-login');
-                    document.getElementById('form-register').reset();
-                } catch (error) {
-                    Toast.show("Gagal mendaftar: " + error.message, 'error');
-                } finally {
-                    btn.disabled = false; btn.innerText = 'Daftar Akun';
-                }
-            },
-
             login: async (e) => {
-                e.preventDefault();
-                const email = document.getElementById('login-email').value.trim();
-                const pass = document.getElementById('login-password').value;
-                const remember = document.getElementById('login-remember').checked;
-                const btn = document.getElementById('btn-login');
-
-                btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Memverifikasi...';
-
+                e.preventDefault(); const btn = document.getElementById('btn-login'); btn.disabled = true;
                 try {
-                    await setPersistence(auth, remember ? browserLocalPersistence : browserSessionPersistence);
-                    const userCredential = await signInWithEmailAndPassword(auth, email, pass);
-                    
-                    if (!userCredential.user.emailVerified) {
-                        document.getElementById('unverified-alert').classList.remove('hidden');
-                        Toast.show('Email belum diverifikasi!', 'warning');
-                    } else {
-                        Toast.show('Login berhasil!', 'success');
-                    }
-                } catch (error) {
-                    Toast.show('Email atau Password salah!', 'error');
-                } finally {
-                    btn.disabled = false; btn.innerHTML = '<span>Login Email</span> <i class="fa-solid fa-arrow-right"></i>';
-                }
+                    await signInWithEmailAndPassword(auth, document.getElementById('login-email').value, document.getElementById('login-password').value);
+                    Toast.show('Login berhasil!', 'success');
+                } catch (e) { Toast.show('Email atau Password salah!', 'error'); } 
+                finally { btn.disabled = false; }
             },
-
-            logout: async () => {
-                try { await signOut(auth); Toast.show('Berhasil logout', 'success'); } 
-                catch (error) { Toast.show('Gagal logout', 'error'); }
-            }
+            register: async (e) => {
+                e.preventDefault(); const btn = document.getElementById('btn-register'); btn.disabled = true;
+                try {
+                    await createUserWithEmailAndPassword(auth, document.getElementById('reg-email').value, document.getElementById('reg-password').value);
+                    Toast.show('Pendaftaran berhasil!', 'success'); Auth.switchView('view-login');
+                } catch (e) { Toast.show(e.message, 'error'); } 
+                finally { btn.disabled = false; }
+            },
+            logout: () => signOut(auth)
         };
 
-        // LISTENER SESI LOGIN
         onAuthStateChanged(auth, (user) => {
-            if (user && (user.emailVerified || user.providerData.some(p => p.providerId === 'google.com'))) {
+            if (user) {
                 document.getElementById('user-display').innerText = user.displayName || 'Penjelajah';
-                
-                // Menampilkan Foto Profil Google jika ada
-                if (user.photoURL) {
-                    document.getElementById('user-avatar').src = user.photoURL;
-                    document.getElementById('user-avatar').classList.remove('hidden');
-                    document.getElementById('user-dot').classList.add('hidden');
-                }
-
+                if (user.photoURL) { document.getElementById('user-avatar').src = user.photoURL; document.getElementById('user-avatar').classList.remove('hidden'); document.getElementById('user-dot').classList.add('hidden'); }
                 document.getElementById('auth-screen').classList.add('hidden-screen');
                 document.getElementById('ui-layer').classList.remove('hidden-screen');
                 document.getElementById('canvas-container').classList.remove('hidden-screen');
-                document.getElementById('unverified-alert').classList.add('hidden');
-                
-                if (!App3D.scene) App3D.init(); // Mulai rendering tata surya
+                if (!App3D.scene) App3D.init();
             } else {
                 document.getElementById('auth-screen').classList.remove('hidden-screen');
                 document.getElementById('ui-layer').classList.add('hidden-screen');
                 document.getElementById('canvas-container').classList.add('hidden-screen');
-                document.getElementById('user-avatar').classList.add('hidden');
-                document.getElementById('user-dot').classList.remove('hidden');
-                Auth.switchView('view-login');
-                App3D.cleanup();
+                Auth.switchView('view-login'); App3D.cleanup();
             }
         });
 
-        // LOGIKA UI, MODAL, KALKULATOR & KUIS (Tetap sama seperti sebelumnya)
+        // UI & KALKULATOR
         const UI = {
             init: () => {
-                const nav = document.getElementById('planet-nav');
-                nav.innerHTML = '';
+                const nav = document.getElementById('planet-nav'); nav.innerHTML = '';
                 PLANETS_DATA.forEach((p, index) => {
                     const btn = document.createElement('button');
-                    btn.className = `flex-none flex flex-col items-center justify-center w-16 h-16 md:w-20 md:h-20 rounded-xl md:rounded-2xl transition-all duration-300 hover:bg-white/10 group ${index === 0 ? 'bg-white/10 border border-white/20' : 'bg-transparent border border-transparent'}`;
+                    btn.className = `flex-none flex flex-col items-center justify-center w-16 h-16 md:w-20 md:h-20 rounded-xl transition-all duration-300 hover:bg-white/10 group ${index === 0 ? 'bg-white/10 border border-white/20' : 'bg-transparent border border-transparent'}`;
                     btn.onclick = () => {
-                        Array.from(nav.children).forEach(c => {
-                            c.classList.remove('bg-white/10', 'border-white/20');
-                            c.classList.add('bg-transparent', 'border-transparent');
-                        });
+                        Array.from(nav.children).forEach(c => c.classList.remove('bg-white/10', 'border-white/20'));
                         btn.classList.add('bg-white/10', 'border-white/20');
-                        btn.classList.remove('bg-transparent', 'border-transparent');
-                        App3D.focusPlanet(p.id);
-                        UI.showPlanetInfo(p);
+                        App3D.focusPlanet(p.id); UI.showPlanetInfo(p);
                     };
-                    btn.innerHTML = `
-                        <div class="w-8 h-8 rounded-full mb-1 flex items-center justify-center" style="background-color: #${p.color.toString(16).padStart(6,'0')}40; border: 1px solid #${p.color.toString(16).padStart(6,'0')}">
-                            <i class="fa-solid ${p.icon} text-sm" style="color: #${p.color.toString(16).padStart(6,'0')}"></i>
-                        </div>
-                        <span class="text-[10px] md:text-xs text-gray-300 group-hover:text-white font-medium">${p.name}</span>
-                    `;
+                    btn.innerHTML = `<div class="w-8 h-8 rounded-full mb-1 flex items-center justify-center" style="background-color: #${p.color.toString(16).padStart(6,'0')}40; border: 1px solid #${p.color.toString(16).padStart(6,'0')}"><i class="fa-solid ${p.icon} text-sm" style="color: #${p.color.toString(16).padStart(6,'0')}"></i></div><span class="text-[10px] md:text-xs text-gray-300 font-medium">${p.name}</span>`;
                     nav.appendChild(btn);
                 });
-
                 document.getElementById('orbit-speed').addEventListener('input', (e) => {
                     App3D.timeScale = parseFloat(e.target.value);
                     document.getElementById('speed-display').innerText = App3D.timeScale.toFixed(1) + 'x';
@@ -530,25 +413,16 @@
                 document.getElementById('info-dist').innerText = planet.realDist > 0 ? `${planet.realDist} Juta km` : 'Pusat';
                 document.getElementById('info-speed').innerText = planet.speed > 0 ? (planet.speed * 1000).toFixed(1) + ' km/s' : '0 km/s';
                 document.getElementById('info-type').innerText = planet.type;
-                
-                const iconDiv = document.getElementById('info-icon');
-                iconDiv.innerHTML = `<i class="fa-solid ${planet.icon}"></i>`;
-                iconDiv.style.color = `#${planet.color.toString(16).padStart(6,'0')}`;
-
-                card.classList.remove('opacity-0', '-translate-x-[120%]');
-                card.classList.add('opacity-100', 'translate-x-0');
+                document.getElementById('info-icon').innerHTML = `<i class="fa-solid ${planet.icon}"></i>`;
+                document.getElementById('info-icon').style.color = `#${planet.color.toString(16).padStart(6,'0')}`;
+                card.classList.remove('opacity-0', '-translate-x-[120%]'); card.classList.add('opacity-100', 'translate-x-0');
             },
             closeInfoPanel: () => {
                 const card = document.getElementById('planet-info-card');
-                card.classList.remove('opacity-100', 'translate-x-0');
-                card.classList.add('opacity-0', '-translate-x-[120%]');
+                card.classList.remove('opacity-100', 'translate-x-0'); card.classList.add('opacity-0', '-translate-x-[120%]');
                 App3D.focusPlanet('sun');
             },
-            openModal: (id) => {
-                document.getElementById(id).classList.add('active');
-                if(id === 'calculator-modal') Kalkulator.init();
-                if(id === 'quiz-modal') Quiz.start();
-            },
+            openModal: (id) => { document.getElementById(id).classList.add('active'); if(id === 'calculator-modal') Kalkulator.init(); },
             closeModal: (id) => document.getElementById(id).classList.remove('active')
         };
 
@@ -556,65 +430,103 @@
             init: () => {
                 const p1 = document.getElementById('calc-p1'); const p2 = document.getElementById('calc-p2');
                 p1.innerHTML = ''; p2.innerHTML = '';
-                PLANETS_DATA.forEach(p => {
-                    p1.innerHTML += `<option value="${p.realDist}">${p.name}</option>`;
-                    p2.innerHTML += `<option value="${p.realDist}">${p.name}</option>`;
-                });
-                p2.selectedIndex = 3;
-                document.getElementById('calc-result').classList.add('hidden');
+                PLANETS_DATA.forEach(p => { p1.innerHTML += `<option value="${p.realDist}">${p.name}</option>`; p2.innerHTML += `<option value="${p.realDist}">${p.name}</option>`; });
+                p2.selectedIndex = 3; document.getElementById('calc-result').classList.add('hidden');
             },
             hitung: () => {
-                const dist1 = parseFloat(document.getElementById('calc-p1').value);
-                const dist2 = parseFloat(document.getElementById('calc-p2').value);
+                const dist1 = parseFloat(document.getElementById('calc-p1').value); const dist2 = parseFloat(document.getElementById('calc-p2').value);
                 document.getElementById('calc-km').innerText = Math.abs(dist1 - dist2).toFixed(1) + " Juta km";
                 document.getElementById('calc-result').classList.remove('hidden');
             }
         };
 
-        const Quiz = {
-            databaseSoal: [
-                { q: "Planet mana yang dijuluki planet merah?", opts: ["Venus", "Bumi", "Mars", "Jupiter"], ans: 2 },
-                { q: "Planet terbesar di tata surya kita adalah?", opts: ["Saturnus", "Jupiter", "Matahari", "Uranus"], ans: 1 },
-                { q: "Planet yang terkenal dengan sistem cincin yang megah?", opts: ["Uranus", "Neptunus", "Saturnus", "Venus"], ans: 2 },
-                { q: "Pusat dari tata surya kita adalah?", opts: ["Bumi", "Bulan", "Bintang Sirius", "Matahari"], ans: 3 },
-                { q: "Planet terdekat dengan Matahari adalah?", opts: ["Merkurius", "Venus", "Bumi", "Mars"], ans: 0 }
+        // LOGIKA KUIS AI (DINAMIS & ACAK)
+        const AIQuiz = {
+            bankSoal: [
+                { q: "Apa nama planet yang dijuluki sebagai 'Bintang Kejora'?", opts: ["Venus", "Mars", "Merkurius", "Jupiter"], ans: 0 },
+                { q: "Planet mana yang memiliki Gunung Olympus Mons, gunung tertinggi di tata surya?", opts: ["Bumi", "Venus", "Mars", "Saturnus"], ans: 2 },
+                { q: "Siapakah satelit alami terbesar milik planet Jupiter?", opts: ["Titan", "Europa", "Ganymede", "Io"], ans: 2 },
+                { q: "Berapa banyak sabuk asteroid utama di tata surya kita dan di mana letaknya?", opts: ["Antara Bumi & Mars", "Antara Mars & Jupiter", "Antara Jupiter & Saturnus", "Di luar orbit Neptunus"], ans: 1 },
+                { q: "Planet manakah yang sumbu rotasinya miring hampir 90 derajat sehingga terlihat menggelinding?", opts: ["Saturnus", "Uranus", "Neptunus", "Pluto"], ans: 1 },
+                { q: "Apa sebutan untuk batas terluar pengaruh gravitasi Matahari?", opts: ["Sabuk Kuiper", "Awan Oort", "Heliopause", "Garis Karman"], ans: 2 },
+                { q: "Gas apa yang membuat atmosfer planet Neptunus berwarna biru cerah?", opts: ["Oksigen", "Metana", "Hidrogen", "Helium"], ans: 1 },
+                { q: "Berapa lama waktu yang dibutuhkan cahaya Matahari untuk sampai ke Bumi?", opts: ["Sekitar 2 menit", "Sekitar 8 menit", "Sekitar 12 menit", "Seketika"], ans: 1 },
+                { q: "Planet gas mana yang kepadatannya sangat rendah sehingga bisa mengapung jika ditaruh di atas air raksasa?", opts: ["Jupiter", "Uranus", "Neptunus", "Saturnus"], ans: 3 },
+                { q: "Satelit Bumi (Bulan) selalu menunjukkan sisi yang sama kepada kita. Fenomena ini disebut?", opts: ["Rotasi Retrograd", "Tidal Locking", "Gerhana", "Librasi"], ans: 1 },
+                { q: "Komet Halley dapat dilihat dari Bumi setiap berapa tahun sekali?", opts: ["25 Tahun", "50 Tahun", "76 Tahun", "100 Tahun"], ans: 2 },
+                { q: "Planet terpanas di tata surya kita adalah Venus, bukan Merkurius. Apa alasannya?", opts: ["Dekat matahari", "Efek rumah kaca ekstrem", "Inti magma terbuka", "Sering ditabrak meteor"], ans: 1 }
             ],
             soalAktif: [], currIdx: 0, score: 0,
-            start: () => {
-                Quiz.soalAktif = [...Quiz.databaseSoal].sort(() => 0.5 - Math.random()).slice(0, 5);
-                Quiz.currIdx = 0; Quiz.score = 0;
-                document.getElementById('quiz-container').classList.remove('hidden');
+            
+            triggerAIGeneration: () => {
+                UI.openModal('quiz-modal');
+                document.getElementById('ai-loading-screen').classList.remove('hidden');
+                document.getElementById('quiz-container').classList.add('hidden');
                 document.getElementById('quiz-result').classList.add('hidden');
-                Quiz.load();
+                
+                // Simulasi AI memproses/mengacak pertanyaan (1.5 detik)
+                setTimeout(() => {
+                    // Acak bank soal dan ambil 5 soal secara random
+                    AIQuiz.soalAktif = [...AIQuiz.bankSoal].sort(() => 0.5 - Math.random()).slice(0, 5);
+                    
+                    // Acak juga urutan jawabannya
+                    AIQuiz.soalAktif.forEach(soal => {
+                        const jawabanBenarTeks = soal.opts[soal.ans];
+                        soal.opts = soal.opts.sort(() => 0.5 - Math.random());
+                        soal.ans = soal.opts.indexOf(jawabanBenarTeks);
+                    });
+
+                    AIQuiz.currIdx = 0; AIQuiz.score = 0;
+                    document.getElementById('ai-loading-screen').classList.add('hidden');
+                    document.getElementById('quiz-container').classList.remove('hidden');
+                    AIQuiz.load();
+                }, 1500);
             },
+            
             load: () => {
-                const qData = Quiz.soalAktif[Quiz.currIdx];
-                document.getElementById('quiz-progress').innerText = `${Quiz.currIdx + 1}/${Quiz.soalAktif.length}`;
+                const qData = AIQuiz.soalAktif[AIQuiz.currIdx];
+                document.getElementById('quiz-progress').innerText = `${AIQuiz.currIdx + 1}/${AIQuiz.soalAktif.length}`;
                 document.getElementById('quiz-question').innerText = qData.q;
                 const optsDiv = document.getElementById('quiz-options');
                 optsDiv.innerHTML = '';
                 qData.opts.forEach((opt, index) => {
                     const btn = document.createElement('button');
-                    btn.className = "w-full text-left bg-black/40 border border-gray-600 hover:border-yellow-400 hover:bg-yellow-400/10 text-white p-4 rounded-xl transition-all";
-                    btn.innerText = opt;
-                    btn.onclick = () => Quiz.answer(index);
+                    btn.className = "w-full text-left bg-black/40 border border-gray-600 hover:border-yellow-400 hover:bg-yellow-400/10 text-white p-4 rounded-xl transition-all shadow-sm";
+                    btn.innerHTML = `<span class="inline-block w-6 h-6 rounded bg-gray-700 text-center text-sm leading-6 mr-3 text-gray-300 font-bold">${String.fromCharCode(65 + index)}</span> ${opt}`;
+                    btn.onclick = () => AIQuiz.answer(index);
                     optsDiv.appendChild(btn);
                 });
             },
+            
             answer: (idx) => {
-                if(idx === Quiz.soalAktif[Quiz.currIdx].ans) Quiz.score += (100 / Quiz.soalAktif.length);
-                Quiz.currIdx++;
-                if(Quiz.currIdx < Quiz.soalAktif.length) Quiz.load();
-                else {
-                    document.getElementById('quiz-container').classList.add('hidden');
-                    document.getElementById('final-score').innerText = Math.round(Quiz.score);
-                    document.getElementById('quiz-result').classList.remove('hidden');
-                }
+                if(idx === AIQuiz.soalAktif[AIQuiz.currIdx].ans) AIQuiz.score += (100 / AIQuiz.soalAktif.length);
+                AIQuiz.currIdx++;
+                if(AIQuiz.currIdx < AIQuiz.soalAktif.length) AIQuiz.load();
+                else AIQuiz.showResult();
+            },
+            
+            showResult: () => {
+                document.getElementById('quiz-container').classList.add('hidden');
+                document.getElementById('quiz-result').classList.remove('hidden');
+                
+                const final = Math.round(AIQuiz.score);
+                document.getElementById('final-score').innerText = final;
+                
+                let msg = "", icon = "";
+                if(final === 100) { msg = "Luar biasa! Pengetahuan kosmikmu setara dengan ilmuwan NASA!"; icon = "🌟"; }
+                else if(final >= 60) { msg = "Bagus sekali! Kamu memiliki potensi besar menjadi astronot."; icon = "🚀"; }
+                else { msg = "Teruslah menjelajah tata surya. Banyak hal yang masih bisa kamu pelajari!"; icon = "🔭"; }
+                
+                document.getElementById('result-message').innerText = msg;
+                document.getElementById('result-icon').innerText = icon;
             }
         };
 
+        // ENGINE 3D (BUMI DETAIL, ASTEROID & UFO)
         const App3D = {
-            scene: null, camera: null, renderer: null, controls: null, planets: [], animationId: null, timeScale: 1, targetPlanet: null,
+            scene: null, camera: null, renderer: null, controls: null, planets: [], asteroids: null, ufo: null,
+            animationId: null, timeScale: 1, ufoTime: 0, targetPlanet: null,
+            
             init: () => {
                 const container = document.getElementById('canvas-container');
                 container.innerHTML = '';
@@ -623,60 +535,165 @@
                 App3D.camera.position.set(0, 40, 80);
                 App3D.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
                 App3D.renderer.setSize(window.innerWidth, window.innerHeight);
-                App3D.renderer.setPixelRatio(window.devicePixelRatio);
+                App3D.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Optimasi performa
                 container.appendChild(App3D.renderer.domElement);
                 App3D.controls = new THREE.OrbitControls(App3D.camera, App3D.renderer.domElement);
                 App3D.controls.enableDamping = true; App3D.controls.dampingFactor = 0.05; App3D.controls.maxDistance = 200;
                 
-                App3D.scene.add(new THREE.AmbientLight(0xffffff, 0.1));
-                App3D.scene.add(new THREE.PointLight(0xffffff, 2, 300));
+                // Pencahayaan
+                App3D.scene.add(new THREE.AmbientLight(0x404040, 0.5));
+                const sunLight = new THREE.PointLight(0xffffee, 2, 400);
+                App3D.scene.add(sunLight);
                 
-                const starsGeometry = new THREE.BufferGeometry();
-                const starsMaterial = new THREE.PointsMaterial({color: 0xffffff, size: 0.2});
-                const starsVertices = [];
-                for(let i=0; i<1000; i++) starsVertices.push((Math.random()-0.5)*400, (Math.random()-0.5)*400, (Math.random()-0.5)*400);
-                starsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starsVertices, 3));
-                App3D.scene.add(new THREE.Points(starsGeometry, starsMaterial));
+                // Bintang Latar Belakang
+                const starsGeo = new THREE.BufferGeometry();
+                const starsMat = new THREE.PointsMaterial({color: 0xffffff, size: 0.2});
+                const starsVerts = [];
+                for(let i=0; i<2000; i++) starsVerts.push((Math.random()-0.5)*400, (Math.random()-0.5)*400, (Math.random()-0.5)*400);
+                starsGeo.setAttribute('position', new THREE.Float32BufferAttribute(starsVerts, 3));
+                App3D.scene.add(new THREE.Points(starsGeo, starsMat));
 
+                // Generate Planet
                 App3D.planets = [];
                 PLANETS_DATA.forEach(data => {
-                    const mesh = new THREE.Mesh(
-                        new THREE.SphereGeometry(data.radius, 32, 32),
-                        data.id === 'sun' ? new THREE.MeshBasicMaterial({ color: data.color }) : new THREE.MeshStandardMaterial({ color: data.color, roughness: 0.7 })
-                    );
-                    if(data.hasRing) {
-                        const ring = new THREE.Mesh(new THREE.RingGeometry(data.radius * 1.3, data.radius * 2, 32), new THREE.MeshStandardMaterial({ color: 0xcccccc, side: THREE.DoubleSide, transparent: true, opacity: 0.8 }));
-                        ring.rotation.x = Math.PI / 2 + 0.2; mesh.add(ring);
+                    const material = data.id === 'sun' ? new THREE.MeshBasicMaterial({ color: data.color }) : new THREE.MeshStandardMaterial({ color: data.color, roughness: 0.7, metalness: 0.1 });
+                    const mesh = new THREE.Mesh(new THREE.SphereGeometry(data.radius, 32, 32), material);
+                    
+                    // TAMBAHAN: Detail Daratan Hijau untuk Bumi
+                    if (data.id === 'earth') {
+                        // Membuat bola hijau yang sedikit lebih besar
+                        const landGeo = new THREE.SphereGeometry(data.radius * 1.01, 24, 24);
+                        const landMat = new THREE.MeshStandardMaterial({ color: 0x2d8a3c, roughness: 0.9 });
+                        const landMesh = new THREE.Mesh(landGeo, landMat);
+                        
+                        // Modifikasi vertex secara acak untuk membentuk pulau/benua
+                        const positions = landMesh.geometry.attributes.position;
+                        for(let i = 0; i < positions.count; i++) {
+                            // Noise sangat sederhana: jika random > 0.45, daratan 'tenggelam' (jadi transparan/mengecil)
+                            if (Math.random() > 0.45) {
+                                positions.setXYZ(i, 0, 0, 0); // Sembunyikan vertex ini
+                            }
+                        }
+                        landMesh.geometry.computeVertexNormals();
+                        mesh.add(landMesh); // Tempelkan daratan ke bola bumi
                     }
+
+                    // Cincin Saturnus
+                    if(data.hasRing) {
+                        const ringGeo = new THREE.RingGeometry(data.radius * 1.3, data.radius * 2.2, 64);
+                        const ringMat = new THREE.MeshStandardMaterial({ color: 0xcccccc, side: THREE.DoubleSide, transparent: true, opacity: 0.8 });
+                        const ring = new THREE.Mesh(ringGeo, ringMat);
+                        ring.rotation.x = Math.PI / 2 + 0.1; 
+                        mesh.add(ring);
+                    }
+                    
+                    // Garis Orbit
                     if(data.distance > 0) {
-                        const path = new THREE.Mesh(new THREE.RingGeometry(data.distance, data.distance + 0.1, 64), new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide, transparent: true, opacity: 0.1 }));
+                        const pathGeo = new THREE.RingGeometry(data.distance, data.distance + 0.05, 128);
+                        const pathMat = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide, transparent: true, opacity: 0.15 });
+                        const path = new THREE.Mesh(pathGeo, pathMat);
                         path.rotation.x = Math.PI / 2; App3D.scene.add(path);
                     }
+                    
                     App3D.scene.add(mesh);
                     App3D.planets.push({ mesh: mesh, data: data, angle: Math.random() * Math.PI * 2 });
                 });
+
+                // TAMBAHAN: Sabuk Asteroid (Antara Mars dan Jupiter: Jarak 26-29)
+                const asteroidCount = 1500;
+                const astGeo = new THREE.DodecahedronGeometry(0.15, 0);
+                const astMat = new THREE.MeshStandardMaterial({ color: 0x888888, roughness: 0.8 });
+                App3D.asteroids = new THREE.InstancedMesh(astGeo, astMat, asteroidCount);
                 
+                const dummy = new THREE.Object3D();
+                for(let i = 0; i < asteroidCount; i++) {
+                    const angle = Math.random() * Math.PI * 2;
+                    const distance = 25.5 + Math.random() * 3.5; // Menyebar di sabuk
+                    const height = (Math.random() - 0.5) * 2; // Menyebar ke atas bawah sedikit
+                    
+                    dummy.position.set(Math.cos(angle) * distance, height, Math.sin(angle) * distance);
+                    dummy.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI);
+                    const scale = Math.random() * 0.8 + 0.2;
+                    dummy.scale.set(scale, scale, scale);
+                    dummy.updateMatrix();
+                    App3D.asteroids.setMatrixAt(i, dummy.matrix);
+                }
+                App3D.scene.add(App3D.asteroids);
+
+                // TAMBAHAN: Alien UFO Terbang Lucu
+                App3D.ufo = new THREE.Group();
+                // 1. Piringan Bawah (Perak)
+                const disk = new THREE.Mesh(new THREE.CylinderGeometry(1.2, 1.2, 0.3, 32), new THREE.MeshStandardMaterial({color: 0xaaaaaa, metalness: 0.8, roughness: 0.2}));
+                // 2. Kubah Kaca Atas
+                const dome = new THREE.Mesh(new THREE.SphereGeometry(0.7, 16, 16, 0, Math.PI*2, 0, Math.PI/2), new THREE.MeshPhysicalMaterial({color: 0x88ccff, transparent: true, opacity: 0.4, roughness: 0.1}));
+                dome.position.y = 0.1;
+                // 3. Alien Hijau di dalam
+                const alien = new THREE.Mesh(new THREE.SphereGeometry(0.35, 16, 16), new THREE.MeshStandardMaterial({color: 0x00ff00, roughness: 0.6}));
+                alien.position.y = 0.3;
+                // Mata Alien Hitam Besar
+                const eyeMat = new THREE.MeshBasicMaterial({color: 0x000000});
+                const eye1 = new THREE.Mesh(new THREE.SphereGeometry(0.08, 8, 8), eyeMat); eye1.position.set(0.12, 0.4, 0.28);
+                const eye2 = new THREE.Mesh(new THREE.SphereGeometry(0.08, 8, 8), eyeMat); eye2.position.set(-0.12, 0.4, 0.28);
+                // Lampu Sorot Bawah UFO
+                const ufoLight = new THREE.PointLight(0x00ffff, 3, 15);
+                ufoLight.position.y = -0.5;
+
+                App3D.ufo.add(disk, dome, alien, eye1, eye2, ufoLight);
+                App3D.scene.add(App3D.ufo);
+
                 window.addEventListener('resize', App3D.onWindowResize);
                 App3D.targetPlanet = App3D.planets[0];
                 App3D.animate();
             },
+            
             focusPlanet: (id) => App3D.targetPlanet = App3D.planets.find(p => p.data.id === id),
+            
             animate: () => {
                 App3D.animationId = requestAnimationFrame(App3D.animate);
+                
+                // Rotasi Planet
                 App3D.planets.forEach(p => {
                     if(p.data.distance > 0) {
                         p.angle += p.data.speed * App3D.timeScale * 0.1;
                         p.mesh.position.set(Math.cos(p.angle) * p.data.distance, 0, Math.sin(p.angle) * p.data.distance);
-                        p.mesh.rotation.y += 0.01;
-                    } else p.mesh.rotation.y += 0.002;
+                        p.mesh.rotation.y += 0.01 * App3D.timeScale;
+                    } else p.mesh.rotation.y += 0.002 * App3D.timeScale; // Rotasi matahari
                 });
+
+                // Rotasi Sabuk Asteroid
+                if(App3D.asteroids) App3D.asteroids.rotation.y -= 0.0005 * App3D.timeScale;
+
+                // Animasi UFO Terbang Mengelilingi Tata Surya
+                if(App3D.ufo) {
+                    App3D.ufoTime += 0.01 * App3D.timeScale;
+                    // Rumus trigonometri untuk membuat jalur acak yang meliuk-liuk
+                    const orbitRadius = 40 + Math.sin(App3D.ufoTime * 0.5) * 15; 
+                    App3D.ufo.position.x = Math.cos(App3D.ufoTime) * orbitRadius;
+                    App3D.ufo.position.z = Math.sin(App3D.ufoTime * 1.3) * orbitRadius;
+                    App3D.ufo.position.y = Math.sin(App3D.ufoTime * 2.5) * 4 + 2; // Naik Turun (Bobbing)
+                    
+                    // Kemiringan saat berbelok
+                    App3D.ufo.rotation.z = Math.sin(App3D.ufoTime * 3) * 0.2;
+                    App3D.ufo.rotation.x = Math.cos(App3D.ufoTime * 2) * 0.2;
+                    // UFO menghadap ke arah jalan
+                    App3D.ufo.lookAt(
+                        Math.cos(App3D.ufoTime + 0.1) * orbitRadius,
+                        App3D.ufo.position.y,
+                        Math.sin((App3D.ufoTime + 0.1) * 1.3) * orbitRadius
+                    );
+                }
+
+                // Smooth Kamera Fokus
                 if(App3D.targetPlanet) {
                     const targetPos = new THREE.Vector3();
                     App3D.targetPlanet.mesh.getWorldPosition(targetPos);
                     App3D.controls.target.lerp(targetPos, 0.05);
                 }
-                App3D.controls.update(); App3D.renderer.render(App3D.scene, App3D.camera);
+                
+                App3D.controls.update(); 
+                App3D.renderer.render(App3D.scene, App3D.camera);
             },
+            
             onWindowResize: () => {
                 if(!App3D.camera) return;
                 App3D.camera.aspect = window.innerWidth / window.innerHeight;
@@ -688,12 +705,12 @@
             }
         };
 
+        // EVENT LISTENERS
         document.getElementById('form-login').addEventListener('submit', Auth.login);
         document.getElementById('form-register').addEventListener('submit', Auth.register);
-        document.getElementById('form-forgot').addEventListener('submit', Auth.forgotPassword);
         document.addEventListener('DOMContentLoaded', UI.init);
 
-        window.Auth = Auth; window.UI = UI; window.Kalkulator = Kalkulator; window.Quiz = Quiz; window.App3D = App3D; window.Toast = Toast;
+        window.Auth = Auth; window.UI = UI; window.Kalkulator = Kalkulator; window.AIQuiz = AIQuiz; window.App3D = App3D;
     </script>
 </body>
 </html>
