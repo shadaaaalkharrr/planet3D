@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kosmos Edukasi & Eksplorasi</title>
+    <title>Kosmos Edukasi & Eksplorasi - Ultimate Edition</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -16,28 +16,11 @@
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 
     <style>
-        body { 
-            margin: 0; 
-            overflow: hidden; 
-            background-color: #020205; 
-            color: white; 
-            font-family: 'Inter', system-ui, sans-serif; 
-            user-select: none; 
-        }
+        body { margin: 0; overflow: hidden; background-color: #020205; color: white; font-family: 'Inter', system-ui, sans-serif; user-select: none; }
         
         /* Glassmorphism Utilities */
-        .glass { 
-            background: rgba(15, 15, 25, 0.4); 
-            backdrop-filter: blur(12px); 
-            -webkit-backdrop-filter: blur(12px); 
-            border: 1px solid rgba(255, 255, 255, 0.05); 
-        }
-        .glass-panel { 
-            background: rgba(10, 10, 15, 0.7); 
-            backdrop-filter: blur(16px); 
-            -webkit-backdrop-filter: blur(16px); 
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5); 
-        }
+        .glass { background: rgba(15, 15, 25, 0.4); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.05); }
+        .glass-panel { background: rgba(10, 10, 15, 0.65); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5); }
         
         /* Custom Scrollbar */
         .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -47,31 +30,10 @@
         .custom-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
         
         /* Modals */
-        .modal-overlay { 
-            position: fixed; 
-            inset: 0; 
-            background: rgba(0,0,0,0.8); 
-            backdrop-filter: blur(8px); 
-            z-index: 100; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            opacity: 0; 
-            pointer-events: none; 
-            transition: all 0.3s ease; 
-        }
-        .modal-overlay.active { 
-            opacity: 1; 
-            pointer-events: auto; 
-        }
-        .modal-content { 
-            transform: scale(0.95); 
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
-            max-height: 90vh; 
-        }
-        .modal-overlay.active .modal-content { 
-            transform: scale(1); 
-        }
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); z-index: 100; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: all 0.3s ease; }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        .modal-content { transform: scale(0.95); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); max-height: 90vh; }
+        .modal-overlay.active .modal-content { transform: scale(1); }
 
         /* Auth Views */
         .auth-view { display: none; opacity: 0; transition: opacity 0.3s ease; }
@@ -84,6 +46,11 @@
         .toast.show { transform: translateX(0); }
         .toast-success { background: rgba(34, 197, 94, 0.2); border: 1px solid rgba(34, 197, 94, 0.5); }
         .toast-error { background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.5); }
+        .toast-warning { background: rgba(234, 179, 8, 0.2); border: 1px solid rgba(234, 179, 8, 0.5); }
+
+        /* AI Scan Animation */
+        .ai-scan-line { width: 100%; height: 2px; background: linear-gradient(90deg, transparent, #eab308, transparent); position: absolute; top: 0; left: 0; animation: scan 1.5s infinite linear; }
+        @keyframes scan { 0% { top: 0%; opacity: 0; } 50% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
 
         .hidden-screen { display: none !important; }
         #canvas-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; }
@@ -91,153 +58,177 @@
 </head>
 <body>
 
-    <!-- LAYER AUTENTIKASI -->
+    <!-- LAYER AUTENTIKASI (Tengah Presisi) -->
     <div id="auth-screen" class="fixed inset-0 z-50 flex items-center justify-center min-h-screen w-full bg-[url('https://images.unsplash.com/photo-1462331940025-496dfbfc7564?q=80&w=2048&auto=format&fit=crop')] bg-cover bg-center overflow-y-auto py-8">
         <div class="absolute inset-0 bg-black/80 backdrop-blur-md"></div>
+        
+        <!-- Toast Container -->
         <div id="toast-container"></div>
 
         <div class="glass-panel p-8 rounded-3xl w-[90%] max-w-md relative z-10 m-auto border-t border-white/20 shadow-[0_0_50px_rgba(0,0,0,0.8)] flex flex-col justify-center">
+            
             <div class="text-center mb-6">
-                <div class="w-14 h-14 bg-blue-500/10 text-blue-400 rounded-full flex items-center justify-center text-2xl mx-auto mb-3 border border-blue-400/30">
-                    <i class="fa-solid fa-user-astronaut"></i>
+                <div class="w-14 h-14 bg-blue-500/10 text-blue-400 rounded-full flex items-center justify-center text-2xl mx-auto mb-3 border border-blue-400/30 shadow-[0_0_20px_rgba(59,130,246,0.2)]">
+                    <i class="fa-solid fa-atom"></i>
                 </div>
                 <h1 class="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400">Kosmos.Edu</h1>
-                <p class="text-xs text-gray-400 mt-1">Sistem Eksplorasi Luar Angkasa</p>
             </div>
 
-            <!-- Login View -->
+            <!-- VIEW: LOGIN -->
             <div id="view-login" class="auth-view active">
+                <h2 class="text-white font-semibold text-lg mb-1">Selamat Datang Kembali</h2>
+                <p class="text-gray-400 text-xs mb-5">Masuk untuk melanjutkan eksplorasi tata surya.</p>
                 <form id="form-login" class="space-y-4">
                     <div class="relative">
                         <i class="fa-regular fa-envelope absolute left-4 top-3.5 text-gray-500 text-sm"></i>
-                        <input type="email" id="login-email" required placeholder="Alamat Email" class="w-full bg-black/40 border border-gray-700 rounded-xl py-3 pl-10 pr-4 text-sm outline-none text-white focus:border-blue-500">
+                        <input type="email" id="login-email" required placeholder="Alamat Email" class="w-full bg-black/40 border border-gray-700 rounded-xl py-3 pl-10 pr-4 focus:border-blue-500 outline-none text-white text-sm transition-all">
                     </div>
                     <div class="relative">
                         <i class="fa-solid fa-lock absolute left-4 top-3.5 text-gray-500 text-sm"></i>
-                        <input type="password" id="login-password" required placeholder="Password" class="w-full bg-black/40 border border-gray-700 rounded-xl py-3 pl-10 pr-10 text-sm outline-none text-white focus:border-blue-500">
+                        <input type="password" id="login-password" required placeholder="Password" class="w-full bg-black/40 border border-gray-700 rounded-xl py-3 pl-10 pr-10 focus:border-blue-500 outline-none text-white text-sm transition-all">
+                        <button type="button" onclick="Auth.togglePassword('login-password', this)" class="absolute right-4 top-3.5 text-gray-500 hover:text-gray-300">
+                            <i class="fa-regular fa-eye"></i>
+                        </button>
                     </div>
-                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 rounded-xl text-sm transition-all">Mulai Eksplorasi</button>
+                    
+                    <button type="submit" id="btn-login" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 rounded-xl transition-all text-sm mt-2 flex justify-center items-center gap-2">
+                        <span>Login Email</span> <i class="fa-solid fa-arrow-right"></i>
+                    </button>
                 </form>
+
                 <div class="mt-5 flex items-center">
                     <div class="flex-grow border-t border-gray-700"></div>
-                    <span class="px-3 text-xs text-gray-500">Atau</span>
+                    <span class="px-3 text-xs text-gray-500">Atau masuk dengan</span>
                     <div class="flex-grow border-t border-gray-700"></div>
                 </div>
-                <button type="button" onclick="Auth.googleLogin()" class="w-full mt-4 bg-white hover:bg-gray-200 text-black font-bold py-3.5 rounded-xl text-sm flex justify-center items-center gap-3">
-                    <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-5 h-5"> Login Google
+                
+                <button type="button" id="btn-google" onclick="Auth.googleLogin()" class="w-full mt-4 bg-white hover:bg-gray-200 text-black font-bold py-3.5 rounded-xl transition-all text-sm flex justify-center items-center gap-3">
+                    <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-5 h-5" alt="Google">
+                    <span>Lanjutkan dengan Google</span>
                 </button>
-                <p class="text-center text-xs text-gray-400 mt-5">Belum punya akun? <a href="#" onclick="Auth.switchView('view-register')" class="text-blue-400 hover:text-blue-300">Daftar</a></p>
+                
+                <p class="text-center text-xs text-gray-400 mt-5">
+                    Belum punya akun? <a href="#" onclick="Auth.switchView('view-register')" class="text-blue-400 font-semibold hover:text-blue-300">Daftar Sekarang</a>
+                </p>
             </div>
 
-            <!-- Register View -->
+            <!-- VIEW: REGISTER -->
             <div id="view-register" class="auth-view">
-                <form id="form-register" class="space-y-4">
+                <h2 class="text-white font-semibold text-lg mb-1">Buat Akun Baru</h2>
+                <p class="text-gray-400 text-xs mb-5">Daftar untuk memulai eksplorasi ruang angkasa.</p>
+                <form id="form-register" class="space-y-3">
+                    <div class="relative">
+                        <i class="fa-solid fa-user-astronaut absolute left-4 top-3.5 text-gray-500 text-sm"></i>
+                        <input type="text" id="reg-name" required placeholder="Nama Lengkap" class="w-full bg-black/40 border border-gray-700 rounded-xl py-3 pl-10 pr-4 focus:border-blue-500 outline-none text-white text-sm transition-all">
+                    </div>
                     <div class="relative">
                         <i class="fa-regular fa-envelope absolute left-4 top-3.5 text-gray-500 text-sm"></i>
-                        <input type="email" id="reg-email" required placeholder="Alamat Email" class="w-full bg-black/40 border border-gray-700 rounded-xl py-3 pl-10 pr-4 text-sm text-white">
+                        <input type="email" id="reg-email" required placeholder="Alamat Email" class="w-full bg-black/40 border border-gray-700 rounded-xl py-3 pl-10 pr-4 focus:border-blue-500 outline-none text-white text-sm transition-all">
                     </div>
                     <div class="relative">
                         <i class="fa-solid fa-lock absolute left-4 top-3.5 text-gray-500 text-sm"></i>
-                        <input type="password" id="reg-password" required placeholder="Password Baru" class="w-full bg-black/40 border border-gray-700 rounded-xl py-3 pl-10 pr-4 text-sm text-white">
+                        <input type="password" id="reg-password" required placeholder="Password Baru" class="w-full bg-black/40 border border-gray-700 rounded-xl py-3 pl-10 pr-10 focus:border-blue-500 outline-none text-white text-sm transition-all">
+                        <button type="button" onclick="Auth.togglePassword('reg-password', this)" class="absolute right-4 top-3.5 text-gray-500 hover:text-gray-300"><i class="fa-regular fa-eye"></i></button>
                     </div>
-                    <button type="submit" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-3.5 rounded-xl text-sm">Buat Akun</button>
+                    
+                    <button type="submit" id="btn-register" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-3.5 rounded-xl transition-all text-sm mt-4">Daftar Akun</button>
+                    <p class="text-center text-xs text-gray-400 mt-4">
+                        Sudah punya akun? <a href="#" onclick="Auth.switchView('view-login')" class="text-blue-400 font-semibold hover:text-blue-300">Kembali ke Login</a>
+                    </p>
                 </form>
-                <p class="text-center text-xs text-gray-400 mt-5">Sudah punya akun? <a href="#" onclick="Auth.switchView('view-login')" class="text-blue-400 hover:text-blue-300">Login</a></p>
             </div>
         </div>
     </div>
 
-    <!-- CANVAS THREE.JS -->
+    <!-- KONTRIBUSI THREE.JS -->
     <div id="canvas-container" class="hidden-screen"></div>
 
-    <!-- ANTARMUKA UTAMA (UI LAYER) -->
+    <!-- ANTARMUKA UTAMA -->
     <div id="ui-layer" class="hidden-screen">
-        
-        <!-- Navbar Atas -->
-        <nav class="fixed top-0 left-0 w-full glass pointer-events-auto border-b border-white/5 px-4 md:px-6 py-3 flex justify-between items-center z-40">
-            <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-600 to-purple-500 flex items-center justify-center border border-white/20">
-                    <i class="fa-solid fa-rocket text-white text-xs"></i>
+        <!-- Navbar -->
+        <nav class="fixed top-0 left-0 w-full glass pointer-events-auto border-b border-white/5 px-2 md:px-6 py-3 flex justify-between items-center bg-gradient-to-b from-black/80 to-transparent z-40">
+            <div class="flex items-center gap-2 md:gap-3">
+                <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center shadow-[0_0_15px_rgba(37,99,235,0.8)]">
+                    <i class="fa-solid fa-earth-americas text-white text-sm"></i>
                 </div>
-                <span class="font-bold text-lg hidden lg:block">Kosmos<span class="text-blue-400">.Edu</span></span>
+                <span class="font-bold text-lg tracking-wide hidden lg:block text-white/90">Kosmos<span class="text-blue-400">.Edu</span></span>
             </div>
             
-            <div class="flex gap-2 bg-black/40 p-1.5 rounded-xl border border-white/10 overflow-x-auto no-scrollbar">
-                <button onclick="UI.openModal('calculator-modal')" class="hover:bg-white/10 text-gray-300 hover:text-white px-3 py-1.5 rounded-lg text-xs md:text-sm transition-all">
-                    <i class="fa-solid fa-ruler-horizontal text-purple-400 mr-2"></i>Kalkulator
+            <div class="flex gap-1 md:gap-2 bg-black/40 p-1.5 rounded-xl border border-white/10 overflow-x-auto no-scrollbar">
+                <button onclick="UI.openModal('calculator-modal')" class="whitespace-nowrap hover:bg-white/10 text-gray-300 hover:text-white px-3 md:px-4 py-1.5 rounded-lg text-xs md:text-sm transition-all flex items-center gap-2">
+                    <i class="fa-solid fa-ruler-horizontal text-purple-400"></i> <span class="hidden sm:inline">Kalkulator</span>
                 </button>
                 <div class="w-px bg-white/10 my-1"></div>
-                <button onclick="UI.openModal('characteristics-modal')" class="hover:bg-white/10 text-gray-300 hover:text-white px-3 py-1.5 rounded-lg text-xs md:text-sm transition-all">
-                    <i class="fa-solid fa-book-journal-whills text-blue-400 mr-2"></i>Ensiklopedia
+                <!-- TOMBOL KARAKTERISTIK BARU -->
+                <button onclick="UI.openModal('characteristics-modal')" class="whitespace-nowrap hover:bg-white/10 text-gray-300 hover:text-white px-3 md:px-4 py-1.5 rounded-lg text-xs md:text-sm transition-all flex items-center gap-2">
+                    <i class="fa-solid fa-book-journal-whills text-green-400"></i> <span class="hidden sm:inline">Karakteristik</span>
                 </button>
                 <div class="w-px bg-white/10 my-1"></div>
-                <button onclick="EclipseSim.toggleUI()" class="hover:bg-white/10 text-gray-300 hover:text-white px-3 py-1.5 rounded-lg text-xs md:text-sm transition-all">
-                    <i class="fa-solid fa-moon text-gray-400 mr-2"></i>Gerhana
-                </button>
-                <div class="w-px bg-white/10 my-1"></div>
-                <button onclick="AIQuiz.triggerAIGeneration()" class="hover:bg-white/10 text-gray-300 hover:text-white px-3 py-1.5 rounded-lg text-xs md:text-sm transition-all">
-                    <i class="fa-solid fa-robot text-yellow-400 mr-2"></i>Kuis
+                <button onclick="AIQuiz.triggerAIGeneration()" class="whitespace-nowrap hover:bg-white/10 text-gray-300 hover:text-white px-3 md:px-4 py-1.5 rounded-lg text-xs md:text-sm transition-all flex items-center gap-2 relative overflow-hidden group">
+                    <i class="fa-solid fa-robot text-yellow-400 group-hover:animate-pulse"></i> <span class="hidden sm:inline">Kuis AI</span>
                 </button>
             </div>
 
-            <button onclick="Auth.logout()" class="text-red-400 hover:text-white hover:bg-red-500/20 px-3 py-2 rounded-lg text-sm bg-black/40 border border-red-500/20">
-                <i class="fa-solid fa-power-off"></i>
-            </button>
+            <div class="flex items-center gap-3">
+                <div class="hidden md:flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-full border border-white/10">
+                    <img id="user-avatar" src="" class="w-5 h-5 rounded-full hidden">
+                    <div id="user-dot" class="w-2 h-2 rounded-full bg-green-400"></div>
+                    <span class="text-xs text-gray-300 font-medium whitespace-nowrap" id="user-display">User</span>
+                </div>
+                <button onclick="Auth.logout()" class="text-red-400 hover:text-white hover:bg-red-500/20 px-3 py-2 rounded-lg transition-colors text-sm"><i class="fa-solid fa-power-off"></i></button>
+            </div>
         </nav>
 
-        <!-- Panel Info Planet -->
-        <div id="planet-info-card" class="fixed top-24 left-4 md:left-6 z-40 w-[280px] md:w-[320px] pointer-events-none opacity-0 -translate-x-[120%] transition-all duration-500">
+        <!-- Panel Info -->
+        <div id="planet-info-card" class="fixed top-20 left-4 md:left-6 z-40 w-[280px] md:w-[320px] pointer-events-none opacity-0 -translate-x-[120%] transition-all duration-500 ease-out">
             <div class="glass-panel p-5 rounded-2xl shadow-2xl border-l-4 border-blue-500 relative pointer-events-auto">
-                <button onclick="UI.closeInfoPanel()" class="absolute top-4 right-4 text-gray-500 hover:text-white">
-                    <i class="fa-solid fa-xmark"></i>
+                <button onclick="UI.closeInfoPanel()" class="absolute top-4 right-4 text-gray-500 hover:text-white bg-black/40 w-7 h-7 rounded-full flex justify-center items-center border border-white/10 transition-colors">
+                    <i class="fa-solid fa-xmark text-sm"></i>
                 </button>
-                <div class="flex items-center gap-3 mb-2">
-                    <div id="info-icon" class="text-2xl text-yellow-400"></div>
-                    <h2 id="info-title" class="text-2xl font-extrabold text-white"></h2>
+                <div class="flex items-center gap-3 mb-2 pr-6">
+                    <div id="info-icon" class="text-2xl text-yellow-400"><i class="fa-solid fa-sun"></i></div>
+                    <h2 id="info-title" class="text-2xl font-extrabold text-white tracking-tight">Matahari</h2>
                 </div>
-                <p id="info-desc" class="text-xs text-gray-300 mb-4"></p>
-                <button onclick="UI.openModal('characteristics-modal', document.getElementById('info-title').innerText)" class="w-full bg-white/10 hover:bg-white/20 text-white text-xs py-2.5 rounded-lg border border-white/10 transition-colors">
-                    <i class="fa-solid fa-book-open text-blue-400 mr-2"></i>Baca Selengkapnya
+                <p id="info-desc" class="text-xs text-gray-300 mb-4 leading-relaxed mt-2"></p>
+                <div class="space-y-2 text-[10px] md:text-xs bg-black/40 p-3 rounded-xl border border-white/5">
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-400"><i class="fa-solid fa-arrows-left-right w-4"></i> Jarak ke Pusat</span>
+                        <span id="info-dist" class="text-white font-mono font-semibold">0 Juta km</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-400"><i class="fa-solid fa-gauge-high w-4"></i> Kecepatan Orbit</span>
+                        <span id="info-speed" class="text-white font-mono font-semibold">0 km/s</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-400"><i class="fa-solid fa-weight-hanging w-4"></i> Tipe Objek</span>
+                        <span id="info-type" class="text-blue-300 font-medium bg-blue-500/10 px-2 py-0.5 rounded">Bintang</span>
+                    </div>
+                </div>
+                <!-- Shortcut Button to Characteristics -->
+                <button onclick="UI.openModal('characteristics-modal', document.getElementById('info-title').innerText)" class="w-full mt-3 bg-white/10 hover:bg-white/20 text-white text-xs py-2 rounded-lg transition-colors border border-white/10 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-book-open text-green-400"></i> Detail Lengkap
                 </button>
-            </div>
-        </div>
-
-        <!-- Panel Simulasi Gerhana -->
-        <div id="eclipse-panel" class="fixed top-24 right-4 md:right-6 z-40 w-[300px] pointer-events-auto hidden">
-            <div class="glass-panel p-5 rounded-2xl shadow-2xl border border-gray-500/50">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="font-bold text-white"><i class="fa-solid fa-eclipse mr-2"></i>Simulasi Gerhana</h3>
-                    <button onclick="EclipseSim.stop()" class="text-red-400 hover:text-red-300 text-sm">
-                        <i class="fa-solid fa-circle-stop mr-1"></i>Tutup
-                    </button>
-                </div>
-                <div class="flex gap-2 mb-4">
-                    <button onclick="EclipseSim.start('solar')" class="flex-1 bg-yellow-500/20 hover:bg-yellow-500/40 text-yellow-300 text-xs py-2 rounded border border-yellow-500/30 transition-colors">Gerhana Matahari</button>
-                    <button onclick="EclipseSim.start('lunar')" class="flex-1 bg-blue-500/20 hover:bg-blue-500/40 text-blue-300 text-xs py-2 rounded border border-blue-500/30 transition-colors">Gerhana Bulan</button>
-                </div>
-                <div id="eclipse-explanation" class="bg-black/50 p-3 rounded-lg border border-white/10 hidden">
-                    <h4 id="eclipse-title" class="text-sm font-bold text-white mb-1"></h4>
-                    <p id="eclipse-desc" class="text-[11px] text-gray-300 leading-relaxed"></p>
-                </div>
             </div>
         </div>
 
         <!-- Kontrol Waktu -->
         <div class="fixed bottom-24 right-4 md:right-6 z-40 pointer-events-auto w-[200px] md:w-[240px]">
-            <div class="glass-panel p-3 rounded-xl border border-white/10">
+            <div class="glass-panel p-3 rounded-xl border border-white/10 shadow-xl">
                 <div class="flex justify-between items-center mb-2">
-                    <span class="text-xs text-gray-400 font-semibold uppercase"><i class="fa-regular fa-clock mr-1"></i> Kecepatan Waktu</span>
-                    <span id="speed-display" class="text-xs font-mono text-blue-400">1.0x</span>
+                    <span class="text-[10px] md:text-xs text-gray-400 font-semibold uppercase flex items-center gap-2">
+                        <i class="fa-regular fa-clock"></i> Simulasi Waktu
+                    </span>
+                    <span id="speed-display" class="bg-blue-600/20 py-0.5 rounded text-[10px] md:text-xs font-mono text-blue-400 px-2 font-bold border border-blue-500/30">1.0x</span>
                 </div>
-                <input type="range" id="orbit-speed" min="0" max="10" value="1" step="0.1" class="w-full accent-blue-500">
+                <input type="range" id="orbit-speed" min="0" max="5" value="1" step="0.1" class="w-full accent-blue-500">
             </div>
         </div>
 
-        <!-- Planet Navigation Carousel -->
+        <!-- Carousel Navigasi Bawah -->
         <div class="fixed bottom-4 left-1/2 transform -translate-x-1/2 w-[95%] max-w-4xl z-40 pointer-events-auto">
-            <div class="glass-panel p-1.5 rounded-xl flex items-center border border-white/10">
-                <div id="planet-nav" class="flex gap-2 overflow-x-auto no-scrollbar px-2 py-1.5 w-full snap-x">
-                    <!-- Planet buttons generated here -->
+            <div class="glass-panel p-1.5 rounded-xl md:rounded-2xl flex items-center border border-white/10 relative">
+                <div id="planet-nav" class="flex gap-2 overflow-x-auto no-scrollbar px-2 py-1.5 w-full relative z-0 snap-x">
+                    <!-- Nav generated via JS -->
                 </div>
             </div>
         </div>
@@ -246,86 +237,89 @@
     <!-- MODAL KALKULATOR -->
     <div id="calculator-modal" class="modal-overlay">
         <div class="glass-panel modal-content w-full max-w-lg p-8 rounded-3xl relative mx-4 border border-purple-500/30">
-            <button onclick="UI.closeModal('calculator-modal')" class="absolute top-5 right-5 text-gray-400 hover:text-white text-xl">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
-            <h3 class="text-2xl font-bold text-white mb-6 text-center"><i class="fa-solid fa-ruler-combined text-purple-400 mr-2"></i>Kalkulator Jarak Jauh</h3>
+            <button onclick="UI.closeModal('calculator-modal')" class="absolute top-5 right-5 text-gray-400 hover:text-white text-xl"><i class="fa-solid fa-xmark"></i></button>
+            <h3 class="text-2xl font-bold text-white mb-6 text-center"><i class="fa-solid fa-ruler-combined text-purple-400 mr-2"></i>Kalkulator Jarak</h3>
             <div class="flex flex-col sm:flex-row gap-4 mb-6 items-center">
                 <select id="calc-p1" class="w-full bg-black/60 border border-gray-600 rounded-lg p-3 text-white outline-none"></select>
                 <i class="fa-solid fa-arrow-right-arrow-left text-gray-500 hidden sm:block"></i>
+                <i class="fa-solid fa-arrow-up-arrow-down text-gray-500 sm:hidden"></i>
                 <select id="calc-p2" class="w-full bg-black/60 border border-gray-600 rounded-lg p-3 text-white outline-none"></select>
             </div>
-            <button onclick="Kalkulator.hitung()" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 rounded-xl mb-4 transition-colors">Hitung Jarak Relatif</button>
+            <button onclick="Kalkulator.hitung()" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 rounded-xl mb-4 transition-colors">Hitung Jarak (Relatif)</button>
             <div id="calc-result" class="hidden text-center p-4 bg-purple-900/30 border border-purple-500/30 rounded-xl">
                 <p id="calc-km" class="text-2xl font-bold text-white">0 Juta km</p>
             </div>
         </div>
     </div>
 
-    <!-- MODAL ENSIKLOPEDIA (SANGAT DETAIL) -->
+    <!-- MODAL KARAKTERISTIK (ENSIKLOPEDIA) -->
     <div id="characteristics-modal" class="modal-overlay">
-        <div class="glass-panel modal-content w-full max-w-6xl p-0 rounded-3xl relative mx-4 border border-blue-500/30 overflow-hidden flex flex-col md:flex-row h-[85vh]">
-            <button onclick="UI.closeModal('characteristics-modal')" class="absolute top-4 right-4 text-gray-400 hover:text-white text-xl z-20 w-8 h-8 bg-black/50 rounded-full flex items-center justify-center border border-white/10">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
+        <div class="glass-panel modal-content w-full max-w-4xl p-0 rounded-3xl relative mx-4 border border-green-500/30 overflow-hidden flex flex-col md:flex-row h-[80vh]">
+            <button onclick="UI.closeModal('characteristics-modal')" class="absolute top-4 right-4 text-gray-400 hover:text-white text-xl z-20 w-8 h-8 bg-black/50 rounded-full flex items-center justify-center border border-white/10"><i class="fa-solid fa-xmark"></i></button>
             
+            <!-- Sidebar Planet List -->
             <div class="w-full md:w-1/3 bg-black/40 border-b md:border-b-0 md:border-r border-white/10 flex flex-col h-1/3 md:h-full">
                 <div class="p-5 border-b border-white/10">
-                    <h3 class="text-lg font-bold text-white"><i class="fa-solid fa-book-journal-whills text-blue-400 mr-2"></i> Arsip Kosmos</h3>
+                    <h3 class="text-lg font-bold text-white flex items-center gap-2"><i class="fa-solid fa-book-journal-whills text-green-400"></i> Ensiklopedia</h3>
+                    <p class="text-xs text-gray-400 mt-1">Pilih objek tata surya</p>
                 </div>
-                <div id="char-list" class="flex-1 overflow-y-auto custom-scroll p-3 flex flex-row md:flex-col gap-2"></div>
+                <div id="char-list" class="flex-1 overflow-y-auto custom-scroll p-3 space-y-2 flex flex-row md:flex-col overflow-x-auto md:overflow-x-hidden">
+                    <!-- List populated by JS -->
+                </div>
             </div>
 
-            <div class="w-full md:w-2/3 flex-1 overflow-y-auto custom-scroll p-6 md:p-8 relative">
+            <!-- Detail Content Area -->
+            <div class="w-full md:w-2/3 flex-1 overflow-y-auto custom-scroll p-6 md:p-8 bg-gradient-to-br from-transparent to-black/60 relative">
                 <div id="char-detail-empty" class="absolute inset-0 flex flex-col items-center justify-center text-gray-500">
-                    <i class="fa-brands fa-space-awesome text-6xl mb-4 opacity-30"></i>
-                    <p>Pilih objek dari panel kiri untuk memuat data.</p>
+                    <i class="fa-brands fa-space-awesome text-6xl mb-4 opacity-50"></i>
+                    <p>Pilih objek di sebelah kiri untuk melihat detail.</p>
                 </div>
 
                 <div id="char-detail-content" class="hidden h-full">
-                    <div class="flex items-center gap-4 mb-6 border-b border-white/10 pb-4">
+                    <div class="flex items-center gap-4 mb-6 border-b border-white/10 pb-6">
                         <div id="char-icon" class="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl shadow-lg border border-white/20"></div>
                         <div>
                             <h2 id="char-title" class="text-3xl font-black text-white">Nama</h2>
-                            <span id="char-type" class="text-xs font-semibold px-2.5 py-1 rounded-md mt-1 inline-block bg-blue-500/20 text-blue-300 border border-blue-500/30">Tipe</span>
+                            <span id="char-type" class="text-xs font-semibold px-2.5 py-1 rounded-md mt-1 inline-block">Tipe</span>
                         </div>
                     </div>
 
-                    <p id="char-desc" class="text-gray-300 text-sm leading-relaxed mb-6 italic border-l-4 border-gray-600 pl-4"></p>
+                    <p id="char-desc" class="text-gray-300 text-sm leading-relaxed mb-8 italic border-l-4 border-gray-600 pl-4"></p>
 
-                    <h4 class="text-white font-bold mb-3 border-b border-white/10 pb-2"><i class="fa-solid fa-chart-bar text-green-400 mr-2"></i>Statistik Fisik & Orbital</h4>
-                    <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
-                        <div class="bg-black/30 border border-white/5 rounded-xl p-3">
-                            <p class="text-[10px] text-gray-400 uppercase font-bold"><i class="fa-solid fa-temperature-half text-red-400 mr-1"></i> Suhu Ekstrem</p>
-                            <p id="char-temp" class="text-sm font-bold text-white mt-1"></p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+                        <!-- Stat Cards -->
+                        <div class="bg-white/5 border border-white/10 rounded-xl p-4 flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-full bg-red-500/20 text-red-400 flex items-center justify-center"><i class="fa-solid fa-temperature-half"></i></div>
+                            <div>
+                                <p class="text-[10px] text-gray-400 uppercase font-bold tracking-wider">Suhu Rata-rata</p>
+                                <p id="char-temp" class="text-lg font-bold text-white">0 °C</p>
+                            </div>
                         </div>
-                        <div class="bg-black/30 border border-white/5 rounded-xl p-3">
-                            <p class="text-[10px] text-gray-400 uppercase font-bold"><i class="fa-solid fa-magnet text-blue-400 mr-1"></i> Gravitasi Kuat</p>
-                            <p id="char-grav" class="text-sm font-bold text-white mt-1"></p>
+                        <div class="bg-white/5 border border-white/10 rounded-xl p-4 flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center"><i class="fa-solid fa-magnet"></i></div>
+                            <div>
+                                <p class="text-[10px] text-gray-400 uppercase font-bold tracking-wider">Gravitasi</p>
+                                <p id="char-grav" class="text-lg font-bold text-white">0 m/s²</p>
+                            </div>
                         </div>
-                        <div class="bg-black/30 border border-white/5 rounded-xl p-3">
-                            <p class="text-[10px] text-gray-400 uppercase font-bold"><i class="fa-solid fa-moon text-purple-400 mr-1"></i> Jumlah Satelit</p>
-                            <p id="char-moons" class="text-sm font-bold text-white mt-1"></p>
+                        <div class="bg-white/5 border border-white/10 rounded-xl p-4 flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-full bg-purple-500/20 text-purple-400 flex items-center justify-center"><i class="fa-solid fa-moon"></i></div>
+                            <div>
+                                <p class="text-[10px] text-gray-400 uppercase font-bold tracking-wider">Jumlah Satelit (Bulan)</p>
+                                <p id="char-moons" class="text-lg font-bold text-white">0</p>
+                            </div>
                         </div>
-                        <div class="bg-black/30 border border-white/5 rounded-xl p-3">
-                            <p class="text-[10px] text-gray-400 uppercase font-bold"><i class="fa-solid fa-rotate text-orange-400 mr-1"></i> Rotasi (1 Hari)</p>
-                            <p id="char-hari" class="text-sm font-bold text-white mt-1"></p>
-                        </div>
-                        <div class="bg-black/30 border border-white/5 rounded-xl p-3">
-                            <p class="text-[10px] text-gray-400 uppercase font-bold"><i class="fa-solid fa-arrows-spin text-green-400 mr-1"></i> Orbit (1 Tahun)</p>
-                            <p id="char-tahun" class="text-sm font-bold text-white mt-1"></p>
-                        </div>
-                        <div class="bg-black/30 border border-white/5 rounded-xl p-3">
-                            <p class="text-[10px] text-gray-400 uppercase font-bold"><i class="fa-solid fa-weight-scale text-cyan-400 mr-1"></i> Massa Berbanding Bumi</p>
-                            <p id="char-massa" class="text-sm font-bold text-white mt-1"></p>
+                        <div class="bg-white/5 border border-white/10 rounded-xl p-4 flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-full bg-green-500/20 text-green-400 flex items-center justify-center"><i class="fa-solid fa-cloud"></i></div>
+                            <div>
+                                <p class="text-[10px] text-gray-400 uppercase font-bold tracking-wider">Komposisi Atmosfer</p>
+                                <p id="char-atmos" class="text-sm font-bold text-white truncate" title="Komposisi">None</p>
+                            </div>
                         </div>
                     </div>
 
-                    <h4 class="text-white font-bold mb-3 border-b border-white/10 pb-2"><i class="fa-solid fa-layer-group text-purple-400 mr-2"></i>Komposisi Material</h4>
-                    <p id="char-comp" class="text-sm text-gray-300 mb-6 bg-white/5 p-3 rounded-lg border border-white/5"></p>
-
-                    <div class="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4">
-                        <h4 class="text-yellow-400 font-bold mb-2 text-sm"><i class="fa-solid fa-lightbulb mr-1"></i> Fakta Mencengangkan</h4>
+                    <div class="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-5">
+                        <h4 class="text-yellow-400 font-bold mb-2 flex items-center gap-2"><i class="fa-solid fa-lightbulb"></i> Fakta Unik</h4>
                         <p id="char-fact" class="text-sm text-gray-200 leading-relaxed"></p>
                     </div>
                 </div>
@@ -333,34 +327,63 @@
         </div>
     </div>
 
-    <!-- MODAL KUIS -->
+    <!-- MODAL AI KUIS -->
     <div id="quiz-modal" class="modal-overlay">
-        <div class="glass-panel modal-content w-full max-w-xl p-8 rounded-3xl border border-yellow-500/30">
-            <button onclick="UI.closeModal('quiz-modal')" class="absolute top-5 right-5 text-gray-400 hover:text-white">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
-            <div id="quiz-container" class="relative z-10">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-xl font-bold text-white"><i class="fa-solid fa-robot text-yellow-400 mr-2"></i> Kuis Intelijen Buatan</h3>
-                    <span id="quiz-progress" class="text-sm bg-yellow-500/20 text-yellow-400 px-3 py-1 rounded-full">Tantangan</span>
+        <div class="glass-panel modal-content w-full max-w-xl p-8 rounded-3xl relative mx-4 border border-yellow-500/30 overflow-hidden">
+            <button onclick="UI.closeModal('quiz-modal')" class="absolute top-5 right-5 text-gray-400 hover:text-white text-xl z-20"><i class="fa-solid fa-xmark"></i></button>
+            
+            <!-- Layar Loading AI -->
+            <div id="ai-loading-screen" class="flex flex-col items-center justify-center py-10 relative z-10">
+                <div class="relative w-24 h-24 mb-6">
+                    <div class="absolute inset-0 border-4 border-yellow-500/20 rounded-full"></div>
+                    <div class="absolute inset-0 border-4 border-yellow-400 rounded-full border-t-transparent animate-spin"></div>
+                    <i class="fa-solid fa-robot absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-3xl text-yellow-400"></i>
                 </div>
-                <h4 id="quiz-question" class="text-lg text-gray-200 mb-6">Pertanyaan...</h4>
+                <h3 class="text-xl font-bold text-white mb-2">AI Sedang Menyusun Kuis...</h3>
+                <p class="text-gray-400 text-sm text-center">Menganalisis data tata surya & mengacak pertanyaan khusus untukmu.</p>
+                <div class="w-full h-1.5 bg-gray-700 rounded-full mt-6 overflow-hidden relative">
+                    <div class="h-full bg-yellow-400 w-1/2 animate-[pulse_1s_ease-in-out_infinite]"></div>
+                    <div class="ai-scan-line"></div>
+                </div>
+            </div>
+
+            <!-- Kontainer Pertanyaan Kuis -->
+            <div id="quiz-container" class="hidden relative z-10">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-robot text-yellow-400"></i> Kuis AI Kosmos
+                    </h3>
+                    <span id="quiz-progress" class="text-sm bg-yellow-500/20 text-yellow-400 px-3 py-1 rounded-full border border-yellow-500/30">1/5</span>
+                </div>
+                <h4 id="quiz-question" class="text-lg text-gray-200 mb-6 leading-relaxed">Pertanyaan?</h4>
                 <div id="quiz-options" class="space-y-3 mb-2"></div>
             </div>
+
+            <!-- Hasil Kuis -->
             <div id="quiz-result" class="hidden text-center py-6 relative z-10">
-                <h3 class="text-3xl font-bold text-white mb-2">Analisis Selesai!</h3>
+                <div id="result-icon" class="text-6xl mb-4"></div>
+                <h3 class="text-3xl font-bold text-white mb-2">Analisis AI Selesai!</h3>
+                <p class="text-gray-300">Skor Pengetahuan Kosmos Anda:</p>
                 <div class="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-500 my-4" id="final-score">0</div>
-                <button onclick="AIQuiz.triggerAIGeneration()" class="w-full bg-yellow-600 hover:bg-yellow-500 text-white font-bold px-6 py-3 rounded-xl mt-4">Uji Lagi</button>
+                <p id="result-message" class="text-sm text-gray-400 mb-4 italic">"Pesan dari AI akan muncul di sini"</p>
+                
+                <!-- Kunci Jawaban & Review -->
+                <div id="quiz-review" class="text-left max-h-48 overflow-y-auto custom-scroll space-y-3 p-4 bg-black/40 rounded-xl border border-white/10 text-xs md:text-sm mb-6 shadow-inner">
+                    <!-- Diisi oleh JS -->
+                </div>
+
+                <button onclick="AIQuiz.triggerAIGeneration()" class="w-full bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-500 hover:to-orange-500 text-white font-bold px-6 py-3.5 rounded-xl transition-all shadow-[0_0_15px_rgba(234,179,8,0.4)]">
+                    <i class="fa-solid fa-rotate-right mr-2"></i> Buat Kuis Baru Lagi
+                </button>
             </div>
         </div>
     </div>
 
-    <!-- JAVASCRIPT LOGIC -->
+    <!-- LOGIKA JAVASCRIPT -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
-        // Firebase Config
         const firebaseConfig = {
             apiKey: "AIzaSyDOcmKdA2RD_xNuKTrLYbs9kuwza0nGqzQ",
             authDomain: "planet-22486.firebaseapp.com",
@@ -369,495 +392,481 @@
             messagingSenderId: "606953052611",
             appId: "1:606953052611:web:0cd44a90b8a1cdc0fdc576"
         };
+
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
 
-        // DATA PLANET SANGAT MENDETAIL + SATELIT
+        // DATA PLANET (DIPERLUAS DENGAN DATA KARAKTERISTIK)
         const PLANETS_DATA = [
-            { 
-                id: 'sun', name: 'Matahari', radius: 4.5, distance: 0, speed: 0, color: 0xffcc00, icon: 'fa-sun', type: 'Bintang Utama (Tipe G)', realDist: 0,
-                desc: 'Matahari adalah bola gas raksasa berpijar yang menjadi pusat Tata Surya kita dan menahan semua planet dengan gravitasinya yang masif.', 
-                stats: { temp: "5.500 °C (Permukaan), 15 Juta °C (Inti)", gravity: "274 m/s² (28x Bumi)", moons: "0 (Memiliki 8 Planet)", hari: "27 Hari Bumi (Rotasi Khatulistiwa)", tahun: "230 Juta Tahun (Mengelilingi Galaksi Bima Sakti)", massa: "333.000 x Massa Bumi" },
-                comp: "Terdiri dari 73% Hidrogen, 25% Helium, dan sisa jumlah kecil elemen lebih berat seperti Oksigen, Karbon, Neon, dan Besi.",
-                fact: "Matahari memproduksi energi melalui fusi nuklir, mengubah hidrogen menjadi helium. Massa matahari mewakili 99.86% dari total massa seluruh tata surya kita!",
-                moons3D: []
+            { id: 'sun', name: 'Matahari', radius: 4, distance: 0, speed: 0, color: 0xffcc00, icon: 'fa-sun', desc: 'Pusat tata surya kita, sebuah bintang deret utama tipe G.', type: 'Bintang', realDist: 0,
+              stats: { temp: "5.500 °C (Permukaan)", gravity: "274 m/s²", moons: "0", atmos: "Hidrogen, Helium", fact: "Matahari menyumbang 99,86% dari total massa seluruh tata surya kita. Saking besarnya, sekitar 1,3 juta planet seukuran Bumi bisa muat di dalamnya!" }
             },
-            { 
-                id: 'mercury', name: 'Merkurius', radius: 0.5, distance: 9, speed: 0.04, color: 0xa8a8a8, icon: 'fa-circle', type: 'Planet Terestrial', realDist: 57.9,
-                desc: 'Merkurius adalah planet terkecil dan terdekat dengan Matahari. Permukaannya dipenuhi kawah yang sangat mirip dengan Bulan milik kita.', 
-                stats: { temp: "Malam: -173°C | Siang: 427°C", gravity: "3.7 m/s² (0.38x Bumi)", moons: "0", hari: "59 Hari Bumi", tahun: "88 Hari Bumi", massa: "0.055 x Massa Bumi" },
-                comp: "Miliki inti besi raksasa yang mengambil sekitar 85% dari radius planet, ditutupi oleh mantel tipis bersilika dan kerak berbatu.",
-                fact: "Meskipun merupakan planet terdekat dengan Matahari, Merkurius bukanlah planet terpanas karena tidak memiliki atmosfer tebal untuk menahan panas.",
-                moons3D: []
+            { id: 'mercury', name: 'Merkurius', radius: 0.5, distance: 8, speed: 0.04, color: 0xa8a8a8, icon: 'fa-circle', desc: 'Planet terkecil dan terdekat dengan Matahari.', type: 'Planet Terestrial', realDist: 57.9,
+              stats: { temp: "-173°C hingga 427°C", gravity: "3.7 m/s²", moons: "0", atmos: "Sangat tipis (Eksosfer)", fact: "Walaupun paling dekat dengan matahari, Merkurius bukanlah planet terpanas. Karena tidak punya atmosfer tebal, panasnya langsung hilang saat malam hari." }
             },
-            { 
-                id: 'venus', name: 'Venus', radius: 0.9, distance: 13, speed: 0.015, color: 0xe0c38c, icon: 'fa-circle', type: 'Planet Terestrial', realDist: 108.2,
-                desc: 'Venus sering disebut sebagai "kembaran Bumi" karena ukurannya, tetapi permukaannya adalah neraka kosmik karena efek rumah kaca tak terkendali.', 
-                stats: { temp: "Rata-rata 462 °C (Terpanas)", gravity: "8.87 m/s² (0.9x Bumi)", moons: "0", hari: "243 Hari Bumi", tahun: "225 Hari Bumi", massa: "0.815 x Massa Bumi" },
-                comp: "Atmosfernya 96.5% Karbon Dioksida dengan awan tebal Asam Sulfat. Permukaannya berbatu dengan banyak gunung berapi aktif.",
-                fact: "Venus berotasi dari timur ke barat (retrograde), kebalikan dari sebagian besar planet. Matahari terbit di barat dan tenggelam di timur pada Venus.",
-                moons3D: []
+            { id: 'venus', name: 'Venus', radius: 0.9, distance: 12, speed: 0.015, color: 0xe0c38c, icon: 'fa-circle', desc: 'Planet terpanas di tata surya dengan atmosfer tebal.', type: 'Planet Terestrial', realDist: 108.2,
+              stats: { temp: "462 °C (Rata-rata)", gravity: "8.87 m/s²", moons: "0", atmos: "Karbon Dioksida, Asam Sulfat", fact: "Satu hari di Venus lebih lama daripada satu tahun di Venus! Venus berputar pada sumbunya sangat lambat dan berlawanan arah dari kebanyakan planet." }
             },
-            { 
-                id: 'earth', name: 'Bumi', radius: 1, distance: 18, speed: 0.01, color: 0x2b70d4, icon: 'fa-earth-americas', type: 'Planet Terestrial', realDist: 149.6,
-                desc: 'Satu-satunya tempat di alam semesta yang dikonfirmasi memiliki kehidupan, dengan lautan air cair menutupi sebagian besar permukaannya.', 
-                stats: { temp: "Rata-rata 15 °C (-89°C hingga 58°C)", gravity: "9.807 m/s² (Acuan Dasar)", moons: "1 (Bulan/Luna)", hari: "23 Jam, 56 Menit", tahun: "365.25 Hari", massa: "5.97 x 10^24 kg (Acuan Dasar)" },
-                comp: "Kerak berbatu yang terbelah menjadi lempeng tektonik, mantel silikat yang kental, inti luar cairan, dan inti dalam besi-nikel padat. Atmosfer kaya Nitrogen (78%) dan Oksigen (21%).",
-                fact: "Bumi tidak benar-benar bulat sempurna, melainkan sebuah 'spheroid oblate' (menggelembung di khatulistiwa karena rotasinya).",
-                moons3D: [
-                    { name: 'Bulan (Luna)', radius: 0.27, distance: 2.2, speed: 0.08, color: 0xdddddd }
-                ]
+            { id: 'earth', name: 'Bumi', radius: 1, distance: 17, speed: 0.01, color: 0x2b70d4, icon: 'fa-earth-americas', desc: 'Satu-satunya planet yang diketahui memiliki kehidupan.', type: 'Planet Terestrial', realDist: 149.6,
+              stats: { temp: "15 °C (Rata-rata)", gravity: "9.8 m/s²", moons: "1 (Bulan)", atmos: "Nitrogen, Oksigen", fact: "Bumi adalah satu-satunya planet di tata surya kita yang permukaannya memiliki air dalam bentuk cair (lautan menutupi sekitar 71% permukaannya)." }
             },
-            { 
-                id: 'mars', name: 'Mars', radius: 0.7, distance: 24, speed: 0.008, color: 0xff4020, icon: 'fa-circle', type: 'Planet Terestrial', realDist: 227.9,
-                desc: 'Dikenal sebagai "Planet Merah", Mars adalah gurun dingin dan berdebu dengan lapisan atmosfer yang sangat tipis.', 
-                stats: { temp: "Rata-rata -60 °C", gravity: "3.71 m/s² (0.38x Bumi)", moons: "2 (Phobos, Deimos)", hari: "24 Jam, 37 Menit (1 Sol)", tahun: "687 Hari Bumi", massa: "0.107 x Massa Bumi" },
-                comp: "Debu kaya akan besi oksida (karat) yang memberikan warna merah khas. Di bawah permukaannya terdapat es air yang luas.",
-                fact: "Mars adalah rumah bagi Olympus Mons, gunung berapi tertinggi dan terbesar yang diketahui di seluruh Tata Surya (tingginya 3 kali Gunung Everest!).",
-                moons3D: [
-                    { name: 'Phobos', radius: 0.12, distance: 1.2, speed: 0.15, color: 0x997755 },
-                    { name: 'Deimos', radius: 0.08, distance: 1.8, speed: 0.11, color: 0x776655 }
-                ]
+            { id: 'mars', name: 'Mars', radius: 0.7, distance: 22, speed: 0.008, color: 0xff5733, icon: 'fa-circle', desc: 'Sering disebut Planet Merah karena kandungan besi oksida.', type: 'Planet Terestrial', realDist: 227.9,
+              stats: { temp: "-60 °C (Rata-rata)", gravity: "3.71 m/s²", moons: "2 (Phobos, Deimos)", atmos: "Karbon Dioksida tipis", fact: "Mars memiliki gunung berapi tertinggi di Tata Surya bernama Olympus Mons. Tingginya sekitar 21 km, hampir tiga kali lipat Gunung Everest!" }
             },
-            { 
-                id: 'jupiter', name: 'Jupiter', radius: 2.5, distance: 35, speed: 0.002, color: 0xc88b3a, icon: 'fa-circle', type: 'Raksasa Gas', realDist: 778.5,
-                desc: 'Raja Tata Surya. Jupiter adalah planet raksasa yang memegang peran penting melindungi Bumi dari hantaman komet ekstrasurya berkat gravitasinya.', 
-                stats: { temp: "Rata-rata -108 °C (di puncak awan)", gravity: "24.79 m/s² (2.5x Bumi)", moons: "95 Terkonfirmasi", hari: "9 Jam, 55 Menit (Rotasi Tercepat)", tahun: "11.8 Tahun Bumi", massa: "318 x Massa Bumi" },
-                comp: "Terdiri dari 89% Hidrogen dan 10% Helium. Mungkin memiliki inti padat, tetapi sebagian besarnya adalah lautan hidrogen metalik cair.",
-                fact: "Bintik Merah Raksasa di Jupiter adalah badai siklon kolosal yang ukurannya lebih besar dari Bumi dan telah berkecamuk setidaknya selama 400 tahun.",
-                moons3D: [
-                    { name: 'Io', radius: 0.28, distance: 3.5, speed: 0.09, color: 0xffff88 },
-                    { name: 'Europa', radius: 0.25, distance: 4.2, speed: 0.06, color: 0xeeeeee },
-                    { name: 'Ganymede', radius: 0.4, distance: 5.2, speed: 0.04, color: 0xaaaaaa },
-                    { name: 'Callisto', radius: 0.38, distance: 6.5, speed: 0.03, color: 0x666666 }
-                ]
+            { id: 'jupiter', name: 'Jupiter', radius: 2.2, distance: 32, speed: 0.002, color: 0xc88b3a, icon: 'fa-circle', desc: 'Planet terbesar di tata surya, raksasa gas pelindung bumi.', type: 'Raksasa Gas', realDist: 778.5,
+              stats: { temp: "-108 °C", gravity: "24.79 m/s²", moons: "95 (Dikonfirmasi)", atmos: "Hidrogen, Helium", fact: "Bintik Merah Raksasa di Jupiter sebenarnya adalah badai raksasa yang telah berlangsung selama ratusan tahun dan ukurannya lebih besar dari Bumi." }
             },
-            { 
-                id: 'saturn', name: 'Saturnus', radius: 2.0, distance: 48, speed: 0.0009, color: 0xe3d599, icon: 'fa-ring', type: 'Raksasa Gas', hasRing: true, realDist: 1434,
-                desc: 'Permata Tata Surya, terkenal karena sistem cincin kompleksnya yang bersinar terang terbuat dari triliunan serpihan es dan batuan.', 
-                stats: { temp: "Rata-rata -139 °C", gravity: "10.44 m/s² (1.06x Bumi)", moons: "146 Terkonfirmasi", hari: "10 Jam, 33 Menit", tahun: "29.4 Tahun Bumi", massa: "95 x Massa Bumi" },
-                comp: "Mirip dengan Jupiter (dominan Hidrogen & Helium). Cincinnya hampir murni terdiri dari es air murni berdebu.",
-                fact: "Saturnus adalah planet dengan kepadatan paling rendah. Jika ada lautan (bathub) kosmik yang cukup raksasa, Saturnus akan mengapung di atas air!",
-                moons3D: [
-                    { name: 'Titan', radius: 0.4, distance: 4.8, speed: 0.05, color: 0xddaa55 },
-                    { name: 'Enceladus', radius: 0.15, distance: 3.2, speed: 0.08, color: 0xffffff }
-                ]
+            { id: 'saturn', name: 'Saturnus', radius: 1.8, distance: 42, speed: 0.0009, color: 0xe3d599, icon: 'fa-ring', desc: 'Dikenal dengan sistem cincin es-nya yang menakjubkan.', type: 'Raksasa Gas', hasRing: true, realDist: 1434,
+              stats: { temp: "-139 °C", gravity: "10.44 m/s²", moons: "146 (Dikonfirmasi)", atmos: "Hidrogen, Helium", fact: "Saturnus memiliki kepadatan yang sangat rendah. Jika ada bak mandi yang cukup besar di alam semesta, Saturnus akan mengapung di atas air!" }
             },
-            { 
-                id: 'uranus', name: 'Uranus', radius: 1.5, distance: 59, speed: 0.0004, color: 0x88ccff, icon: 'fa-circle', type: 'Raksasa Es', hasRing: true, isFaintRing: true, realDist: 2871,
-                desc: 'Raksasa Es yang ganjil. Planet ini memiliki sumbu rotasi yang miring tajam hampir menyamping terhadap bidang orbitnya.', 
-                stats: { temp: "Rata-rata -195 °C (Atmosfer Terdingin)", gravity: "8.69 m/s² (0.88x Bumi)", moons: "28 Terkonfirmasi", hari: "17 Jam, 14 Menit", tahun: "84 Tahun Bumi", massa: "14.5 x Massa Bumi" },
-                comp: "Sebagian besar 'es' kosmik (air, amonia, dan metana) di atas inti berbatu. Metana di atmosfer atas menyerap cahaya merah, memberikan warna cyan khas.",
-                fact: "Karena kemiringan aksialnya yang ekstrem (98 derajat), satu kutub Uranus menghadap Matahari terus-menerus selama 42 tahun (musim panas), sementara kutub lainnya dalam kegelapan ekstrem (musim dingin).",
-                moons3D: [
-                    { name: 'Titania', radius: 0.18, distance: 2.8, speed: 0.06, color: 0xaaaaaa },
-                    { name: 'Oberon', radius: 0.17, distance: 3.5, speed: 0.04, color: 0x888888 }
-                ]
+            { id: 'uranus', name: 'Uranus', radius: 1.4, distance: 52, speed: 0.0004, color: 0x88ccff, icon: 'fa-circle', desc: 'Planet es raksasa yang berotasi secara menyamping.', type: 'Raksasa Es', realDist: 2871,
+              stats: { temp: "-195 °C", gravity: "8.69 m/s²", moons: "28", atmos: "Hidrogen, Helium, Metana", fact: "Uranus berputar pada sisinya (miring hampir 90 derajat). Hal ini menyebabkan satu musim panas di salah satu kutubnya berlangsung selama 21 tahun Bumi secara terus-menerus." }
             },
-            { 
-                id: 'neptune', name: 'Neptunus', radius: 1.4, distance: 70, speed: 0.0001, color: 0x3b59ff, icon: 'fa-circle', type: 'Raksasa Es', hasRing: true, isFaintRing: true, realDist: 4495,
-                desc: 'Planet terjauh yang diketahui di tata surya kita. Alam liar yang gelap, dingin, dan dilanda angin supersonik terkuat di sistem surya.', 
-                stats: { temp: "Rata-rata -201 °C", gravity: "11.15 m/s² (1.14x Bumi)", moons: "16 Terkonfirmasi", hari: "16 Jam, 6 Menit", tahun: "165 Tahun Bumi", massa: "17 x Massa Bumi" },
-                comp: "Mantel 'es' panas dan padat (air, amonia, metana) mengelilingi inti bumi berukuran sebesar kerak berbatu. Kaya gas di permukaannya.",
-                fact: "Angin di Neptunus dapat melolong dengan kecepatan mengerikan hingga 2.100 km/jam—sekitar 1.5 kali kecepatan suara di Bumi!",
-                moons3D: [
-                    { name: 'Triton', radius: 0.22, distance: 2.5, speed: -0.07, color: 0xcccccc }
-                ]
+            { id: 'neptune', name: 'Neptunus', radius: 1.3, distance: 62, speed: 0.0001, color: 0x3b59ff, icon: 'fa-circle', desc: 'Planet terjauh, raksasa es dengan angin badai kencang.', type: 'Raksasa Es', realDist: 4495,
+              stats: { temp: "-201 °C", gravity: "11.15 m/s²", moons: "16", atmos: "Hidrogen, Helium, Metana", fact: "Neptunus adalah planet paling berangin di tata surya. Kecepatan angin di sana dapat mencapai 2.100 km/jam, mematahkan batas kecepatan suara!" }
             }
         ];
 
-        // UI & AUTH CONTROLLERS
-        const Toast = { 
-            show: (msg, type='success') => { 
-                const t = document.createElement('div'); t.className = `toast toast-${type}`; t.innerHTML = `<span>${msg}</span>`; 
-                document.getElementById('toast-container').appendChild(t); 
-                requestAnimationFrame(() => t.classList.add('show')); 
-                setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 3000); 
+        // LOGIKA TOAST
+        const Toast = {
+            show: (msg, type = 'success') => {
+                const container = document.getElementById('toast-container');
+                const toast = document.createElement('div');
+                toast.className = `toast toast-${type}`;
+                const icon = type === 'success' ? 'fa-check-circle text-green-400' : type === 'error' ? 'fa-circle-exclamation text-red-400' : 'fa-triangle-exclamation text-yellow-400';
+                toast.innerHTML = `<i class="fa-solid ${icon} text-lg"></i> <span>${msg}</span>`;
+                container.appendChild(toast);
+                requestAnimationFrame(() => toast.classList.add('show'));
+                setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 300); }, 3000);
             }
         };
 
+        // LOGIKA AUTENTIKASI
         const Auth = {
-            switchView: (id) => { document.querySelectorAll('.auth-view').forEach(e => e.classList.remove('active')); document.getElementById(id).classList.add('active'); },
-            googleLogin: async () => { try { await signInWithPopup(auth, new GoogleAuthProvider()); Toast.show('Login berhasil!'); } catch (e) { Toast.show(e.message, 'error'); } },
-            login: async (e) => { e.preventDefault(); try { await signInWithEmailAndPassword(auth, document.getElementById('login-email').value, document.getElementById('login-password').value); Toast.show('Login berhasil!'); } catch(e) { Toast.show('Gagal: Cek kredensial', 'error'); } },
-            register: async (e) => { e.preventDefault(); try { await createUserWithEmailAndPassword(auth, document.getElementById('reg-email').value, document.getElementById('reg-password').value); Toast.show('Daftar berhasil!'); Auth.switchView('view-login'); } catch(e) { Toast.show(e.message, 'error'); } },
+            switchView: (viewId) => {
+                document.querySelectorAll('.auth-view').forEach(el => el.classList.remove('active'));
+                document.getElementById(viewId).classList.add('active');
+            },
+            togglePassword: (inputId, btn) => {
+                const input = document.getElementById(inputId); const icon = btn.querySelector('i');
+                if(input.type === 'password') { input.type = 'text'; icon.classList.replace('fa-eye', 'fa-eye-slash'); } 
+                else { input.type = 'password'; icon.classList.replace('fa-eye-slash', 'fa-eye'); }
+            },
+            googleLogin: async () => {
+                const btn = document.getElementById('btn-google');
+                const originalHtml = btn.innerHTML; btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menghubungkan Google...';
+                try {
+                    const result = await signInWithPopup(auth, new GoogleAuthProvider());
+                    Toast.show(`Selamat datang, ${result.user.displayName}!`, 'success');
+                } catch (error) {
+                    if(error.code !== 'auth/popup-closed-by-user') Toast.show('Gagal: ' + error.message, 'error');
+                } finally { btn.disabled = false; btn.innerHTML = originalHtml; }
+            },
+            login: async (e) => {
+                e.preventDefault(); const btn = document.getElementById('btn-login'); btn.disabled = true;
+                try {
+                    await signInWithEmailAndPassword(auth, document.getElementById('login-email').value, document.getElementById('login-password').value);
+                    Toast.show('Login berhasil!', 'success');
+                } catch (e) { Toast.show('Email atau Password salah!', 'error'); } 
+                finally { btn.disabled = false; }
+            },
+            register: async (e) => {
+                e.preventDefault(); const btn = document.getElementById('btn-register'); btn.disabled = true;
+                try {
+                    await createUserWithEmailAndPassword(auth, document.getElementById('reg-email').value, document.getElementById('reg-password').value);
+                    Toast.show('Pendaftaran berhasil!', 'success'); Auth.switchView('view-login');
+                } catch (e) { Toast.show(e.message, 'error'); } 
+                finally { btn.disabled = false; }
+            },
             logout: () => signOut(auth)
         };
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                document.getElementById('auth-screen').classList.add('hidden-screen'); 
-                document.getElementById('ui-layer').classList.remove('hidden-screen'); 
+                document.getElementById('user-display').innerText = user.displayName || 'Penjelajah';
+                if (user.photoURL) { document.getElementById('user-avatar').src = user.photoURL; document.getElementById('user-avatar').classList.remove('hidden'); document.getElementById('user-dot').classList.add('hidden'); }
+                document.getElementById('auth-screen').classList.add('hidden-screen');
+                document.getElementById('ui-layer').classList.remove('hidden-screen');
                 document.getElementById('canvas-container').classList.remove('hidden-screen');
                 if (!App3D.scene) App3D.init();
             } else {
-                document.getElementById('auth-screen').classList.remove('hidden-screen'); 
-                document.getElementById('ui-layer').classList.add('hidden-screen'); 
+                document.getElementById('auth-screen').classList.remove('hidden-screen');
+                document.getElementById('ui-layer').classList.add('hidden-screen');
                 document.getElementById('canvas-container').classList.add('hidden-screen');
                 Auth.switchView('view-login'); App3D.cleanup();
             }
         });
 
-        // ENSIKLOPEDIA & UI
+        // ENSIKLOPEDIA (KARAKTERISTIK)
+        const Encyclopedia = {
+            init: () => {
+                const list = document.getElementById('char-list');
+                list.innerHTML = '';
+                PLANETS_DATA.forEach(p => {
+                    const btn = document.createElement('button');
+                    btn.className = 'w-full text-left px-4 py-3 rounded-xl hover:bg-white/10 transition-colors flex items-center gap-3 border border-transparent hover:border-white/10 flex-shrink-0 md:flex-shrink-auto min-w-[140px] md:min-w-0';
+                    btn.id = `char-btn-${p.id}`;
+                    btn.onclick = () => Encyclopedia.showDetail(p);
+                    btn.innerHTML = `<div class="w-8 h-8 rounded-full flex items-center justify-center shrink-0" style="background-color: #${p.color.toString(16).padStart(6,'0')}40; border: 1px solid #${p.color.toString(16).padStart(6,'0')}"><i class="fa-solid ${p.icon} text-sm" style="color: #${p.color.toString(16).padStart(6,'0')}"></i></div><span class="font-medium text-gray-200">${p.name}</span>`;
+                    list.appendChild(btn);
+                });
+            },
+            showDetail: (planet) => {
+                // Update UI state
+                document.getElementById('char-detail-empty').classList.add('hidden');
+                document.getElementById('char-detail-content').classList.remove('hidden');
+                
+                // Active class manipulation
+                document.querySelectorAll('[id^="char-btn-"]').forEach(btn => {
+                    btn.classList.remove('bg-white/10', 'border-white/10');
+                });
+                document.getElementById(`char-btn-${planet.id}`).classList.add('bg-white/10', 'border-white/10');
+
+                // Populate Data
+                document.getElementById('char-title').innerText = planet.name;
+                
+                const typeEl = document.getElementById('char-type');
+                typeEl.innerText = planet.type;
+                typeEl.className = 'text-xs font-semibold px-2.5 py-1 rounded-md mt-1 inline-block text-gray-900 ' + 
+                                   (planet.type === 'Bintang' ? 'bg-yellow-400' : 
+                                    planet.type === 'Planet Terestrial' ? 'bg-orange-400' : 
+                                    planet.type === 'Raksasa Gas' ? 'bg-blue-300' : 'bg-cyan-400');
+
+                const iconEl = document.getElementById('char-icon');
+                iconEl.innerHTML = `<i class="fa-solid ${planet.icon}"></i>`;
+                iconEl.style.backgroundColor = `#${planet.color.toString(16).padStart(6,'0')}30`;
+                iconEl.style.color = `#${planet.color.toString(16).padStart(6,'0')}`;
+                iconEl.style.borderColor = `#${planet.color.toString(16).padStart(6,'0')}80`;
+
+                document.getElementById('char-desc').innerText = planet.desc;
+                document.getElementById('char-temp').innerText = planet.stats.temp;
+                document.getElementById('char-grav').innerText = planet.stats.gravity;
+                document.getElementById('char-moons').innerText = planet.stats.moons;
+                document.getElementById('char-atmos').innerText = planet.stats.atmos;
+                document.getElementById('char-atmos').title = planet.stats.atmos;
+                document.getElementById('char-fact').innerText = planet.stats.fact;
+            }
+        };
+
+        // UI & KALKULATOR
         const UI = {
             init: () => {
                 const nav = document.getElementById('planet-nav'); nav.innerHTML = '';
-                PLANETS_DATA.forEach((p, i) => {
+                PLANETS_DATA.forEach((p, index) => {
                     const btn = document.createElement('button');
-                    btn.className = `flex-none flex flex-col items-center justify-center w-16 h-16 rounded-xl hover:bg-white/10 ${i===0 ? 'bg-white/10 border border-white/20' : ''}`;
-                    btn.onclick = () => { 
-                        Array.from(nav.children).forEach(c => c.classList.remove('bg-white/10','border-white/20')); 
-                        btn.classList.add('bg-white/10','border-white/20'); 
-                        
-                        App3D.focusTarget(p.id); UI.showInfo(p); EclipseSim.stop(); 
+                    btn.className = `flex-none flex flex-col items-center justify-center w-16 h-16 md:w-20 md:h-20 rounded-xl transition-all duration-300 hover:bg-white/10 group ${index === 0 ? 'bg-white/10 border border-white/20' : 'bg-transparent border border-transparent'}`;
+                    btn.onclick = () => {
+                        Array.from(nav.children).forEach(c => c.classList.remove('bg-white/10', 'border-white/20'));
+                        btn.classList.add('bg-white/10', 'border-white/20');
+                        App3D.focusPlanet(p.id); UI.showPlanetInfo(p);
                     };
-                    const colorHex = p.color.toString(16).padStart(6,'0');
-                    btn.innerHTML = `<div class="w-8 h-8 rounded-full mb-1 flex justify-center items-center" style="background-color: #${colorHex}40; border: 1px solid #${colorHex}"><i class="fa-solid ${p.icon} text-sm" style="color:#${colorHex}"></i></div><span class="text-[10px] text-gray-300 font-medium">${p.name}</span>`;
+                    btn.innerHTML = `<div class="w-8 h-8 rounded-full mb-1 flex items-center justify-center" style="background-color: #${p.color.toString(16).padStart(6,'0')}40; border: 1px solid #${p.color.toString(16).padStart(6,'0')}"><i class="fa-solid ${p.icon} text-sm" style="color: #${p.color.toString(16).padStart(6,'0')}"></i></div><span class="text-[10px] md:text-xs text-gray-300 font-medium">${p.name}</span>`;
                     nav.appendChild(btn);
                 });
-                document.getElementById('orbit-speed').addEventListener('input', (e) => { App3D.timeScale = parseFloat(e.target.value); document.getElementById('speed-display').innerText = App3D.timeScale.toFixed(1) + 'x'; });
+                document.getElementById('orbit-speed').addEventListener('input', (e) => {
+                    App3D.timeScale = parseFloat(e.target.value);
+                    document.getElementById('speed-display').innerText = App3D.timeScale.toFixed(1) + 'x';
+                });
             },
-            showInfo: (p) => {
+            showPlanetInfo: (planet) => {
                 const card = document.getElementById('planet-info-card');
-                document.getElementById('info-title').innerText = p.name; 
-                document.getElementById('info-desc').innerText = p.desc;
-                document.getElementById('info-icon').innerHTML = `<i class="fa-solid ${p.icon}" style="color:#${p.color.toString(16).padStart(6,'0')}"></i>`;
-                card.classList.remove('opacity-0', '-translate-x-[120%]');
+                document.getElementById('info-title').innerText = planet.name;
+                document.getElementById('info-desc').innerText = planet.desc;
+                document.getElementById('info-dist').innerText = planet.realDist > 0 ? `${planet.realDist} Juta km` : 'Pusat';
+                document.getElementById('info-speed').innerText = planet.speed > 0 ? (planet.speed * 1000).toFixed(1) + ' km/s' : '0 km/s';
+                document.getElementById('info-type').innerText = planet.type;
+                document.getElementById('info-icon').innerHTML = `<i class="fa-solid ${planet.icon}"></i>`;
+                document.getElementById('info-icon').style.color = `#${planet.color.toString(16).padStart(6,'0')}`;
+                card.classList.remove('opacity-0', '-translate-x-[120%]'); card.classList.add('opacity-100', 'translate-x-0');
             },
-            closeInfoPanel: () => { document.getElementById('planet-info-card').classList.add('opacity-0', '-translate-x-[120%]'); App3D.focusTarget('sun'); },
-            openModal: (id, focusPlanet = null) => { 
+            closeInfoPanel: () => {
+                const card = document.getElementById('planet-info-card');
+                card.classList.remove('opacity-100', 'translate-x-0'); card.classList.add('opacity-0', '-translate-x-[120%]');
+                App3D.focusPlanet('sun');
+            },
+            openModal: (id, focusPlanetName = null) => { 
                 document.getElementById(id).classList.add('active'); 
-                if (id === 'calculator-modal') Kalkulator.init(); 
-                if (id === 'characteristics-modal') { Encyclopedia.init(); if(focusPlanet) Encyclopedia.showDetail(PLANETS_DATA.find(p => p.name === focusPlanet)); }
+                if(id === 'calculator-modal') Kalkulator.init(); 
+                if(id === 'characteristics-modal') {
+                    Encyclopedia.init();
+                    if(focusPlanetName) {
+                        const planet = PLANETS_DATA.find(p => p.name === focusPlanetName);
+                        if(planet) Encyclopedia.showDetail(planet);
+                    }
+                }
             },
             closeModal: (id) => document.getElementById(id).classList.remove('active')
         };
 
-        const Encyclopedia = {
-            init: () => {
-                const list = document.getElementById('char-list'); list.innerHTML = '';
-                PLANETS_DATA.forEach(p => {
-                    const btn = document.createElement('button'); btn.className = 'w-full text-left px-4 py-3 rounded-xl hover:bg-white/10 flex items-center gap-3 shrink-0'; btn.id = `char-btn-${p.id}`;
-                    btn.onclick = () => Encyclopedia.showDetail(p);
-                    const colorHex = p.color.toString(16).padStart(6,'0');
-                    btn.innerHTML = `<div class="w-8 h-8 rounded-full flex justify-center items-center" style="background-color:#${colorHex}40"><i class="fa-solid ${p.icon}" style="color:#${colorHex}"></i></div><span class="text-gray-200">${p.name}</span>`;
-                    list.appendChild(btn);
-                });
-            },
-            showDetail: (p) => {
-                document.getElementById('char-detail-empty').classList.add('hidden'); document.getElementById('char-detail-content').classList.remove('hidden');
-                document.querySelectorAll('[id^="char-btn-"]').forEach(b => b.classList.remove('bg-white/10')); document.getElementById(`char-btn-${p.id}`).classList.add('bg-white/10');
-                
-                document.getElementById('char-title').innerText = p.name; document.getElementById('char-type').innerText = p.type;
-                document.getElementById('char-desc').innerText = p.desc; document.getElementById('char-temp').innerText = p.stats.temp;
-                document.getElementById('char-grav').innerText = p.stats.gravity; document.getElementById('char-moons').innerText = p.stats.moons;
-                document.getElementById('char-hari').innerText = p.stats.hari; document.getElementById('char-tahun').innerText = p.stats.tahun;
-                document.getElementById('char-massa').innerText = p.stats.massa; document.getElementById('char-comp').innerText = p.comp;
-                document.getElementById('char-fact').innerText = p.fact;
-                
-                const icon = document.getElementById('char-icon'); const colorHex = p.color.toString(16).padStart(6,'0');
-                icon.innerHTML = `<i class="fa-solid ${p.icon}"></i>`; icon.style.color = `#${colorHex}`; icon.style.backgroundColor = `#${colorHex}30`;
-            }
-        };
-
         const Kalkulator = {
             init: () => {
-                const p1 = document.getElementById('calc-p1'); const p2 = document.getElementById('calc-p2'); p1.innerHTML = ''; p2.innerHTML = '';
-                PLANETS_DATA.forEach(p => { const opt = `<option value="${p.realDist}">${p.name}</option>`; p1.innerHTML += opt; p2.innerHTML += opt; });
+                const p1 = document.getElementById('calc-p1'); const p2 = document.getElementById('calc-p2');
+                p1.innerHTML = ''; p2.innerHTML = '';
+                PLANETS_DATA.forEach(p => { p1.innerHTML += `<option value="${p.realDist}">${p.name}</option>`; p2.innerHTML += `<option value="${p.realDist}">${p.name}</option>`; });
                 p2.selectedIndex = 3; document.getElementById('calc-result').classList.add('hidden');
             },
             hitung: () => {
-                const res = Math.abs(parseFloat(document.getElementById('calc-p1').value) - parseFloat(document.getElementById('calc-p2').value));
-                document.getElementById('calc-km').innerText = res.toFixed(1) + " Juta km"; document.getElementById('calc-result').classList.remove('hidden');
+                const dist1 = parseFloat(document.getElementById('calc-p1').value); const dist2 = parseFloat(document.getElementById('calc-p2').value);
+                document.getElementById('calc-km').innerText = Math.abs(dist1 - dist2).toFixed(1) + " Juta km";
+                document.getElementById('calc-result').classList.remove('hidden');
             }
         };
 
+        // LOGIKA KUIS AI
         const AIQuiz = {
-            bank: [ 
-                {q: "Satelit mana yang mengorbit planet Jupiter?", opts: ["Titan", "Europa", "Triton"], ans: 1}, 
-                {q: "Planet manakah yang rotasinya retrograde (Timur ke Barat)?", opts: ["Venus", "Mars", "Merkurius"], ans: 0},
-                {q: "Sabuk Asteroid utama terletak di antara planet...", opts: ["Bumi & Mars", "Mars & Jupiter", "Jupiter & Saturnus"], ans: 1} 
+            bankSoal: [
+                { q: "Apa nama planet yang dijuluki sebagai 'Bintang Kejora'?", opts: ["Venus", "Mars", "Merkurius", "Jupiter"], ans: 0 },
+                { q: "Planet mana yang memiliki Gunung Olympus Mons, gunung tertinggi di tata surya?", opts: ["Bumi", "Venus", "Mars", "Saturnus"], ans: 2 },
+                { q: "Siapakah satelit alami terbesar milik planet Jupiter?", opts: ["Titan", "Europa", "Ganymede", "Io"], ans: 2 },
+                { q: "Berapa banyak sabuk asteroid utama di tata surya kita dan di mana letaknya?", opts: ["Antara Bumi & Mars", "Antara Mars & Jupiter", "Antara Jupiter & Saturnus", "Di luar orbit Neptunus"], ans: 1 },
+                { q: "Planet manakah yang sumbu rotasinya miring hampir 90 derajat sehingga terlihat menggelinding?", opts: ["Saturnus", "Uranus", "Neptunus", "Pluto"], ans: 1 },
+                { q: "Apa sebutan untuk batas terluar pengaruh gravitasi Matahari?", opts: ["Sabuk Kuiper", "Awan Oort", "Heliopause", "Garis Karman"], ans: 2 },
+                { q: "Gas apa yang membuat atmosfer planet Neptunus berwarna biru cerah?", opts: ["Oksigen", "Metana", "Hidrogen", "Helium"], ans: 1 },
+                { q: "Berapa lama waktu yang dibutuhkan cahaya Matahari untuk sampai ke Bumi?", opts: ["Sekitar 2 menit", "Sekitar 8 menit", "Sekitar 12 menit", "Seketika"], ans: 1 },
+                { q: "Planet gas mana yang kepadatannya sangat rendah sehingga bisa mengapung jika ditaruh di atas air raksasa?", opts: ["Jupiter", "Uranus", "Neptunus", "Saturnus"], ans: 3 },
+                { q: "Satelit Bumi (Bulan) selalu menunjukkan sisi yang sama kepada kita. Fenomena ini disebut?", opts: ["Rotasi Retrograd", "Tidal Locking", "Gerhana", "Librasi"], ans: 1 },
+                { q: "Komet Halley dapat dilihat dari Bumi setiap berapa tahun sekali?", opts: ["25 Tahun", "50 Tahun", "76 Tahun", "100 Tahun"], ans: 2 },
+                { q: "Planet terpanas di tata surya kita adalah Venus, bukan Merkurius. Apa alasannya?", opts: ["Dekat matahari", "Efek rumah kaca ekstrem", "Inti magma terbuka", "Sering ditabrak meteor"], ans: 1 }
             ],
-            triggerAIGeneration: () => { UI.openModal('quiz-modal'); AIQuiz.load(Math.floor(Math.random()*AIQuiz.bank.length)); document.getElementById('quiz-result').classList.add('hidden'); document.getElementById('quiz-container').classList.remove('hidden'); },
-            load: (idx) => { 
-                document.getElementById('quiz-question').innerText = AIQuiz.bank[idx].q; 
-                const opts = document.getElementById('quiz-options'); opts.innerHTML = '';
-                AIQuiz.bank[idx].opts.forEach((o, i) => { opts.innerHTML += `<button onclick="AIQuiz.showRes(${i===AIQuiz.bank[idx].ans})" class="w-full text-left bg-black/40 border border-gray-600 p-4 rounded-xl mt-2 text-white hover:bg-yellow-500/20 transition-colors">${o}</button>`; });
-            },
-            showRes: (isCorrect) => { 
-                document.getElementById('quiz-container').classList.add('hidden'); document.getElementById('quiz-result').classList.remove('hidden'); 
-                document.getElementById('final-score').innerText = isCorrect ? "Benar!" : "Salah"; 
-                document.getElementById('final-score').className = isCorrect ? "text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-green-600 my-4" : "text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-red-600 my-4";
-            }
-        };
-
-        const EclipseSim = {
-            active: false, type: null,
-            toggleUI: () => { document.getElementById('eclipse-panel').classList.toggle('hidden'); UI.closeInfoPanel(); },
-            start: (type) => {
-                EclipseSim.active = true; EclipseSim.type = type; App3D.timeScale = 0; 
-
-                const earth = App3D.planetsData.find(p => p.data.id === 'earth'); const moon = earth.moons[0];
-                earth.angle = Math.PI / 2; // Posisikan Bumi tegak lurus (di depan Kamera)
+            soalAktif: [], userAnswers: [], currIdx: 0, score: 0,
+            
+            triggerAIGeneration: () => {
+                UI.openModal('quiz-modal');
+                document.getElementById('ai-loading-screen').classList.remove('hidden');
+                document.getElementById('quiz-container').classList.add('hidden');
+                document.getElementById('quiz-result').classList.add('hidden');
                 
-                if (type === 'solar') {
-                    moon.angle = -Math.PI / 2; 
-                    document.getElementById('eclipse-title').innerText = "Gerhana Matahari (Solar Eclipse)";
-                    document.getElementById('eclipse-desc').innerText = "Bulan melintas tepat di antara Bumi dan Matahari. Perhatikan bagaimana satelit kecil ini menjatuhkan bayangannya ke permukaan Bumi.";
-                } else {
-                    moon.angle = Math.PI / 2; 
-                    document.getElementById('eclipse-title').innerText = "Gerhana Bulan (Lunar Eclipse)";
-                    document.getElementById('eclipse-desc').innerText = "Bumi berada persis di antara Matahari dan Bulan. Bumi memblokir radiasi surya sehingga Bulan tertutup bayangan (umbra) dari Bumi.";
-                }
-                document.getElementById('eclipse-explanation').classList.remove('hidden');
+                setTimeout(() => {
+                    AIQuiz.soalAktif = [...AIQuiz.bankSoal].sort(() => 0.5 - Math.random()).slice(0, 5);
+                    AIQuiz.soalAktif.forEach(soal => {
+                        const jawabanBenarTeks = soal.opts[soal.ans];
+                        soal.opts = soal.opts.sort(() => 0.5 - Math.random());
+                        soal.ans = soal.opts.indexOf(jawabanBenarTeks);
+                    });
+                    AIQuiz.currIdx = 0; AIQuiz.score = 0; AIQuiz.userAnswers = [];
+                    document.getElementById('ai-loading-screen').classList.add('hidden');
+                    document.getElementById('quiz-container').classList.remove('hidden');
+                    AIQuiz.load();
+                }, 1500);
             },
-            stop: () => {
-                EclipseSim.active = false; App3D.timeScale = parseFloat(document.getElementById('orbit-speed').value);
-                document.getElementById('eclipse-explanation').classList.add('hidden');
-                App3D.focusTarget('earth');
+            
+            load: () => {
+                const qData = AIQuiz.soalAktif[AIQuiz.currIdx];
+                document.getElementById('quiz-progress').innerText = `${AIQuiz.currIdx + 1}/${AIQuiz.soalAktif.length}`;
+                document.getElementById('quiz-question').innerText = qData.q;
+                const optsDiv = document.getElementById('quiz-options');
+                optsDiv.innerHTML = '';
+                qData.opts.forEach((opt, index) => {
+                    const btn = document.createElement('button');
+                    btn.className = "w-full text-left bg-black/40 border border-gray-600 hover:border-yellow-400 hover:bg-yellow-400/10 text-white p-4 rounded-xl transition-all shadow-sm";
+                    btn.innerHTML = `<span class="inline-block w-6 h-6 rounded bg-gray-700 text-center text-sm leading-6 mr-3 text-gray-300 font-bold">${String.fromCharCode(65 + index)}</span> ${opt}`;
+                    btn.onclick = () => AIQuiz.answer(index);
+                    optsDiv.appendChild(btn);
+                });
+            },
+            
+            answer: (idx) => {
+                AIQuiz.userAnswers.push(idx);
+                if(idx === AIQuiz.soalAktif[AIQuiz.currIdx].ans) AIQuiz.score += (100 / AIQuiz.soalAktif.length);
+                AIQuiz.currIdx++;
+                if(AIQuiz.currIdx < AIQuiz.soalAktif.length) AIQuiz.load();
+                else AIQuiz.showResult();
+            },
+            
+            showResult: () => {
+                document.getElementById('quiz-container').classList.add('hidden');
+                document.getElementById('quiz-result').classList.remove('hidden');
+                
+                const final = Math.round(AIQuiz.score);
+                document.getElementById('final-score').innerText = final;
+                
+                let msg = "", icon = "";
+                if(final === 100) { msg = "Luar biasa! Pengetahuan kosmikmu setara dengan ilmuwan NASA!"; icon = "🌟"; }
+                else if(final >= 60) { msg = "Bagus sekali! Kamu memiliki potensi besar menjadi astronot."; icon = "🚀"; }
+                else { msg = "Teruslah menjelajah tata surya. Banyak hal yang masih bisa kamu pelajari!"; icon = "🔭"; }
+                
+                document.getElementById('result-message').innerText = msg;
+                document.getElementById('result-icon').innerText = icon;
+
+                // Tampilkan Review Jawaban
+                const reviewDiv = document.getElementById('quiz-review');
+                reviewDiv.innerHTML = '<h4 class="text-white font-bold mb-3 border-b border-white/20 pb-2"><i class="fa-solid fa-list-check mr-2"></i>Kunci Jawaban</h4>';
+                
+                AIQuiz.soalAktif.forEach((soal, i) => {
+                    const isCorrect = AIQuiz.userAnswers[i] === soal.ans;
+                    const userAnsText = soal.opts[AIQuiz.userAnswers[i]];
+                    const correctAnsText = soal.opts[soal.ans];
+                    
+                    reviewDiv.innerHTML += `
+                        <div class="mb-4 last:mb-0">
+                            <p class="text-gray-200 mb-1 leading-relaxed">${i+1}. ${soal.q}</p>
+                            <p class="${isCorrect ? 'text-green-400' : 'text-red-400'} font-medium">
+                                <i class="fa-solid ${isCorrect ? 'fa-check' : 'fa-xmark'} mr-1"></i> Jawabanmu: ${userAnsText}
+                            </p>
+                            ${!isCorrect ? `<p class="text-yellow-400 font-medium"><i class="fa-solid fa-arrow-right mr-1"></i> Benar: ${correctAnsText}</p>` : ''}
+                        </div>
+                    `;
+                });
             }
         };
 
-        // ENGINE 3D: SABUK ASTEROID, SATELIT, & METEOR
+        // ENGINE 3D (BUMI DETAIL, ASTEROID & UFO)
         const App3D = {
-            scene: null, camera: null, renderer: null, controls: null, 
-            planetsData: [], asteroids: null, shootingStars: [],
-            animationId: null, timeScale: 1, targetFocus: null,
-
+            scene: null, camera: null, renderer: null, controls: null, planets: [], asteroids: null, ufo: null,
+            animationId: null, timeScale: 1, ufoTime: 0, targetPlanet: null,
+            
             init: () => {
-                const container = document.getElementById('canvas-container'); container.innerHTML = '';
-                
-                // 1. Setup Dasar
+                const container = document.getElementById('canvas-container');
+                container.innerHTML = '';
                 App3D.scene = new THREE.Scene();
-                App3D.camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 2000); 
+                App3D.camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
                 App3D.camera.position.set(0, 40, 80);
-                
                 App3D.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
                 App3D.renderer.setSize(window.innerWidth, window.innerHeight);
                 App3D.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-                App3D.renderer.shadowMap.enabled = true; // Shadows are very important for eclipses
-                App3D.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
                 container.appendChild(App3D.renderer.domElement);
+                App3D.controls = new THREE.OrbitControls(App3D.camera, App3D.renderer.domElement);
+                App3D.controls.enableDamping = true; App3D.controls.dampingFactor = 0.05; App3D.controls.maxDistance = 200;
                 
-                App3D.controls = new THREE.OrbitControls(App3D.camera, App3D.renderer.domElement); 
-                App3D.controls.enableDamping = true; 
-                App3D.controls.maxDistance = 500;
-
-                // 2. Pencahayaan
-                App3D.scene.add(new THREE.AmbientLight(0x222222)); // Ambient gelap agar realistik
-                const sunLight = new THREE.PointLight(0xffffee, 2.5, 800);
-                sunLight.castShadow = true;
-                sunLight.shadow.mapSize.width = 2048; sunLight.shadow.mapSize.height = 2048;
-                sunLight.shadow.bias = -0.001; // Cegah artefak bayangan bergaris
+                App3D.scene.add(new THREE.AmbientLight(0x404040, 0.5));
+                const sunLight = new THREE.PointLight(0xffffee, 2, 400);
                 App3D.scene.add(sunLight);
-
-                // 3. Latar Belakang Bintang Statis
+                
                 const starsGeo = new THREE.BufferGeometry();
-                const starsMat = new THREE.PointsMaterial({color: 0xffffff, size: 0.1, transparent: true, opacity: 0.8});
-                const starsVerts = []; 
-                for(let i=0; i<4000; i++) {
-                    starsVerts.push((Math.random()-0.5)*1000, (Math.random()-0.5)*1000, (Math.random()-0.5)*1000);
-                }
-                starsGeo.setAttribute('position', new THREE.Float32BufferAttribute(starsVerts, 3)); 
+                const starsMat = new THREE.PointsMaterial({color: 0xffffff, size: 0.2});
+                const starsVerts = [];
+                for(let i=0; i<2000; i++) starsVerts.push((Math.random()-0.5)*400, (Math.random()-0.5)*400, (Math.random()-0.5)*400);
+                starsGeo.setAttribute('position', new THREE.Float32BufferAttribute(starsVerts, 3));
                 App3D.scene.add(new THREE.Points(starsGeo, starsMat));
 
-                // 4. Sabuk Asteroid (Di antara Mars & Jupiter)
-                App3D.asteroids = new THREE.Group();
-                const astGeo = new THREE.DodecahedronGeometry(0.1, 0); // Bentuk batu sederhana
-                const astMat = new THREE.MeshStandardMaterial({color: 0x888888, roughness: 1});
-                for(let i=0; i<1500; i++) {
-                    const ast = new THREE.Mesh(astGeo, astMat);
-                    const radius = 27 + Math.random() * 5; // Rentang jarak sabuk asteroid
+                App3D.planets = [];
+                PLANETS_DATA.forEach(data => {
+                    const material = data.id === 'sun' ? new THREE.MeshBasicMaterial({ color: data.color }) : new THREE.MeshStandardMaterial({ color: data.color, roughness: 0.7, metalness: 0.1 });
+                    const mesh = new THREE.Mesh(new THREE.SphereGeometry(data.radius, 32, 32), material);
+                    
+                    if (data.id === 'earth') {
+                        const landGeo = new THREE.SphereGeometry(data.radius * 1.01, 24, 24);
+                        const landMat = new THREE.MeshStandardMaterial({ color: 0x2d8a3c, roughness: 0.9 });
+                        const landMesh = new THREE.Mesh(landGeo, landMat);
+                        const positions = landMesh.geometry.attributes.position;
+                        for(let i = 0; i < positions.count; i++) {
+                            if (Math.random() > 0.45) positions.setXYZ(i, 0, 0, 0);
+                        }
+                        landMesh.geometry.computeVertexNormals();
+                        mesh.add(landMesh);
+                    }
+
+                    if(data.hasRing) {
+                        const ringGeo = new THREE.RingGeometry(data.radius * 1.3, data.radius * 2.2, 64);
+                        const ringMat = new THREE.MeshStandardMaterial({ color: 0xcccccc, side: THREE.DoubleSide, transparent: true, opacity: 0.8 });
+                        const ring = new THREE.Mesh(ringGeo, ringMat);
+                        ring.rotation.x = Math.PI / 2 + 0.1; 
+                        mesh.add(ring);
+                    }
+                    
+                    if(data.distance > 0) {
+                        const pathGeo = new THREE.RingGeometry(data.distance, data.distance + 0.05, 128);
+                        const pathMat = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide, transparent: true, opacity: 0.15 });
+                        const path = new THREE.Mesh(pathGeo, pathMat);
+                        path.rotation.x = Math.PI / 2; App3D.scene.add(path);
+                    }
+                    
+                    App3D.scene.add(mesh);
+                    App3D.planets.push({ mesh: mesh, data: data, angle: Math.random() * Math.PI * 2 });
+                });
+
+                const asteroidCount = 1500;
+                const astGeo = new THREE.DodecahedronGeometry(0.15, 0);
+                const astMat = new THREE.MeshStandardMaterial({ color: 0x888888, roughness: 0.8 });
+                App3D.asteroids = new THREE.InstancedMesh(astGeo, astMat, asteroidCount);
+                
+                const dummy = new THREE.Object3D();
+                for(let i = 0; i < asteroidCount; i++) {
                     const angle = Math.random() * Math.PI * 2;
-                    ast.position.set(Math.cos(angle)*radius, (Math.random()-0.5)*2, Math.sin(angle)*radius);
+                    const distance = 25.5 + Math.random() * 3.5;
+                    const height = (Math.random() - 0.5) * 2;
                     
-                    // Skala dan rotasi acak
-                    const scale = 0.5 + Math.random()*1.5;
-                    ast.scale.set(scale, scale, scale);
-                    ast.rotation.set(Math.random()*Math.PI, Math.random()*Math.PI, Math.random()*Math.PI);
-                    
-                    App3D.asteroids.add(ast);
+                    dummy.position.set(Math.cos(angle) * distance, height, Math.sin(angle) * distance);
+                    dummy.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI);
+                    const scale = Math.random() * 0.8 + 0.2;
+                    dummy.scale.set(scale, scale, scale);
+                    dummy.updateMatrix();
+                    App3D.asteroids.setMatrixAt(i, dummy.matrix);
                 }
                 App3D.scene.add(App3D.asteroids);
 
-                // 5. Planet & Satelit 3D
-                App3D.planetsData = [];
-                PLANETS_DATA.forEach(data => {
-                    const orbitGroup = new THREE.Group(); 
-                    App3D.scene.add(orbitGroup);
-                    
-                    const material = data.id === 'sun' ? new THREE.MeshBasicMaterial({ color: data.color }) : new THREE.MeshStandardMaterial({ color: data.color, roughness: 0.7 });
-                    const mesh = new THREE.Mesh(new THREE.SphereGeometry(data.radius, 32, 32), material);
-                    mesh.castShadow = data.id !== 'sun'; mesh.receiveShadow = data.id !== 'sun';
-                    orbitGroup.add(mesh);
+                App3D.ufo = new THREE.Group();
+                const disk = new THREE.Mesh(new THREE.CylinderGeometry(1.2, 1.2, 0.3, 32), new THREE.MeshStandardMaterial({color: 0xaaaaaa, metalness: 0.8, roughness: 0.2}));
+                const dome = new THREE.Mesh(new THREE.SphereGeometry(0.7, 16, 16, 0, Math.PI*2, 0, Math.PI/2), new THREE.MeshPhysicalMaterial({color: 0x88ccff, transparent: true, opacity: 0.4, roughness: 0.1}));
+                dome.position.y = 0.1;
+                const alien = new THREE.Mesh(new THREE.SphereGeometry(0.35, 16, 16), new THREE.MeshStandardMaterial({color: 0x00ff00, roughness: 0.6}));
+                alien.position.y = 0.3;
+                const eyeMat = new THREE.MeshBasicMaterial({color: 0x000000});
+                const eye1 = new THREE.Mesh(new THREE.SphereGeometry(0.08, 8, 8), eyeMat); eye1.position.set(0.12, 0.4, 0.28);
+                const eye2 = new THREE.Mesh(new THREE.SphereGeometry(0.08, 8, 8), eyeMat); eye2.position.set(-0.12, 0.4, 0.28);
+                const ufoLight = new THREE.PointLight(0x00ffff, 3, 15); ufoLight.position.y = -0.5;
 
-                    // Cincin Saturnus / Uranus
-                    if (data.hasRing) {
-                        const ringGeo = new THREE.RingGeometry(data.radius * 1.3, data.radius * 2.4, 64);
-                        const ringColor = data.isFaintRing ? 0x99bbff : 0xcccccc;
-                        const ringOpacity = data.isFaintRing ? 0.3 : 0.8;
-                        const ringMat = new THREE.MeshStandardMaterial({ color: ringColor, side: THREE.DoubleSide, transparent: true, opacity: ringOpacity });
-                        const ring = new THREE.Mesh(ringGeo, ringMat); 
-                        ring.rotation.x = Math.PI / 2 + 0.1; 
-                        ring.receiveShadow = true; 
-                        mesh.add(ring);
-                    }
+                App3D.ufo.add(disk, dome, alien, eye1, eye2, ufoLight);
+                App3D.scene.add(App3D.ufo);
 
-                    // Garis Lintasan (Orbit)
-                    if (data.distance > 0) {
-                        const pathGeo = new THREE.RingGeometry(data.distance, data.distance + 0.05, 128);
-                        const pathMat = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide, transparent: true, opacity: 0.07 });
-                        const path = new THREE.Mesh(pathGeo, pathMat); path.rotation.x = Math.PI / 2; App3D.scene.add(path);
-                    }
-
-                    // Tambah SATELIT MENDETAIL untuk masing-masing planet (Bulan, Phobos, Titan, dll)
-                    const moonsArr = [];
-                    if (data.moons3D) {
-                        data.moons3D.forEach(mData => {
-                            const mMesh = new THREE.Mesh(new THREE.SphereGeometry(mData.radius, 16, 16), new THREE.MeshStandardMaterial({color: mData.color, roughness: 0.9}));
-                            mMesh.castShadow = true; mMesh.receiveShadow = true;
-                            orbitGroup.add(mMesh); 
-                            
-                            // Garis orbit satelit
-                            const mPathGeo = new THREE.RingGeometry(mData.distance, mData.distance + 0.02, 64);
-                            const mPath = new THREE.Mesh(mPathGeo, new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide, transparent: true, opacity: 0.15 }));
-                            mPath.rotation.x = Math.PI / 2;
-                            orbitGroup.add(mPath);
-
-                            moonsArr.push({ mesh: mMesh, data: mData, angle: Math.random() * Math.PI * 2 });
-                        });
-                    }
-                    
-                    App3D.planetsData.push({ group: orbitGroup, mesh: mesh, data: data, angle: Math.random() * Math.PI * 2, moons: moonsArr });
-                });
-
-                // 6. BINTANG JATUH (Meteor Animasi)
-                App3D.shootingStars = [];
-                for(let i=0; i<15; i++) { // Lebih banyak bintang jatuh!
-                    const lineGeo = new THREE.CylinderGeometry(0.04, 0.04, 10, 8); // Panjang meteor
-                    lineGeo.translate(0, 5, 0); // Pindahkan anchor ke ujung ekor
-                    const lineMat = new THREE.MeshBasicMaterial({color: 0x88ccff, transparent: true, opacity: 0});
-                    const lineMesh = new THREE.Mesh(lineGeo, lineMat);
-                    lineMesh.rotateX(Math.PI/2);
-                    App3D.scene.add(lineMesh);
-                    
-                    App3D.shootingStars.push({ mesh: lineMesh, active: false, life: 0, velocity: new THREE.Vector3() });
-                }
-
-                window.addEventListener('resize', App3D.onWindowResize); 
-                
-                App3D.targetFocus = App3D.planetsData[0]; 
+                window.addEventListener('resize', App3D.onWindowResize);
+                App3D.targetPlanet = App3D.planets[0];
                 App3D.animate();
             },
-
-            focusTarget: (id) => {
-                App3D.targetFocus = App3D.planetsData.find(p => p.data.id === id);
-            },
+            
+            focusPlanet: (id) => App3D.targetPlanet = App3D.planets.find(p => p.data.id === id),
             
             animate: () => {
                 App3D.animationId = requestAnimationFrame(App3D.animate);
                 
-                // --- UPDATE SISTEM TATA SURYA ---
-                App3D.planetsData.forEach(p => {
-                    // Revolusi (Mengelilingi Matahari)
-                    if (!EclipseSim.active && p.data.distance > 0) {
+                App3D.planets.forEach(p => {
+                    if(p.data.distance > 0) {
                         p.angle += p.data.speed * App3D.timeScale * 0.1;
-                    }
-                    if (p.data.distance > 0) {
-                        p.group.position.set(Math.cos(p.angle) * p.data.distance, 0, Math.sin(p.angle) * p.data.distance);
-                    }
-                    
-                    // Rotasi Pada Sumbu Planet
-                    if (!EclipseSim.active) { p.mesh.rotation.y += 0.01 * App3D.timeScale; }
-
-                    // Revolusi & Rotasi Satelit (Bulan, dll)
-                    p.moons.forEach(m => {
-                        if (!EclipseSim.active) { m.angle += m.data.speed * App3D.timeScale * 0.5; }
-                        m.mesh.position.set(Math.cos(m.angle) * m.data.distance, 0, Math.sin(m.angle) * m.data.distance);
-                        if (!EclipseSim.active) { m.mesh.rotation.y += 0.02 * App3D.timeScale; }
-                    });
+                        p.mesh.position.set(Math.cos(p.angle) * p.data.distance, 0, Math.sin(p.angle) * p.data.distance);
+                        p.mesh.rotation.y += 0.01 * App3D.timeScale;
+                    } else p.mesh.rotation.y += 0.002 * App3D.timeScale;
                 });
 
-                // Rotasi Sabuk Asteroid
-                if(App3D.asteroids && !EclipseSim.active) {
-                    App3D.asteroids.rotation.y -= 0.0005 * App3D.timeScale;
+                if(App3D.asteroids) App3D.asteroids.rotation.y -= 0.0005 * App3D.timeScale;
+
+                if(App3D.ufo) {
+                    App3D.ufoTime += 0.01 * App3D.timeScale;
+                    const orbitRadius = 40 + Math.sin(App3D.ufoTime * 0.5) * 15; 
+                    App3D.ufo.position.x = Math.cos(App3D.ufoTime) * orbitRadius;
+                    App3D.ufo.position.z = Math.sin(App3D.ufoTime * 1.3) * orbitRadius;
+                    App3D.ufo.position.y = Math.sin(App3D.ufoTime * 2.5) * 4 + 2;
+                    App3D.ufo.rotation.z = Math.sin(App3D.ufoTime * 3) * 0.2;
+                    App3D.ufo.rotation.x = Math.cos(App3D.ufoTime * 2) * 0.2;
+                    App3D.ufo.lookAt(Math.cos(App3D.ufoTime + 0.1) * orbitRadius, App3D.ufo.position.y, Math.sin((App3D.ufoTime + 0.1) * 1.3) * orbitRadius);
                 }
 
-                // --- UPDATE ANIMASI BINTANG JATUH (METEOR) ---
-                App3D.shootingStars.forEach(star => {
-                    if (!star.active) {
-                        // Peluang muncul (semakin tinggi timeScale semakin sering)
-                        if (Math.random() < 0.01 * (App3D.timeScale > 0 ? App3D.timeScale : 1)) { 
-                            star.active = true; star.life = 1.0; 
-                            star.mesh.material.opacity = 1;
-                            
-                            // Posisi Muncul Acak (Radius jauh di luar layar utama)
-                            const dist = 100 + Math.random()*100;
-                            const ang = Math.random() * Math.PI * 2;
-                            star.mesh.position.set( Math.cos(ang)*dist, (Math.random() - 0.5) * 100 + 40, Math.sin(ang)*dist );
-                            
-                            // Kecepatan & Arah Jatuh (Melesat Cepat)
-                            star.velocity.set( (Math.random() - 0.5) * 8, -Math.random() * 4 - 2, (Math.random() - 0.5) * 8 );
-                            
-                            // Putar mesh agar searah kecepatan
-                            const targetLook = star.mesh.position.clone().add(star.velocity);
-                            star.mesh.lookAt(targetLook);
-                            star.mesh.rotateX(-Math.PI/2); // Koreksi silinder
-                        }
-                    } else {
-                        star.mesh.position.add(star.velocity);
-                        star.life -= 0.03 * (App3D.timeScale > 0 ? App3D.timeScale : 1);
-                        star.mesh.material.opacity = star.life;
-                        if (star.life <= 0) star.active = false;
-                    }
-                });
-
-                // --- KAMERA OTOMATIS (FOKUS PLANET / GERHANA) ---
-                if (EclipseSim.active) {
-                    const earth = App3D.planetsData.find(p => p.data.id === 'earth');
-                    if(EclipseSim.type === 'solar') {
-                        App3D.camera.position.lerp(new THREE.Vector3(1, 1, earth.data.distance + 8), 0.05);
-                        App3D.controls.target.lerp(new THREE.Vector3(0,0,0), 0.05);
-                    } else {
-                        App3D.camera.position.lerp(new THREE.Vector3(18, 10, earth.data.distance), 0.05);
-                        App3D.controls.target.lerp(earth.group.position, 0.05);
-                    }
-                } else if(App3D.targetFocus) {
-                    // Mengikuti planet yang dipilih dari carousel
-                    const tPos = new THREE.Vector3(); 
-                    App3D.targetFocus.group.getWorldPosition(tPos);
-                    App3D.controls.target.lerp(tPos, 0.05);
+                if(App3D.targetPlanet) {
+                    const targetPos = new THREE.Vector3();
+                    App3D.targetPlanet.mesh.getWorldPosition(targetPos);
+                    App3D.controls.target.lerp(targetPos, 0.05);
                 }
                 
                 App3D.controls.update(); 
                 App3D.renderer.render(App3D.scene, App3D.camera);
             },
             
-            onWindowResize: () => { 
-                App3D.camera.aspect = window.innerWidth / window.innerHeight; 
-                App3D.camera.updateProjectionMatrix(); 
-                App3D.renderer.setSize(window.innerWidth, window.innerHeight); 
+            onWindowResize: () => {
+                if(!App3D.camera) return;
+                App3D.camera.aspect = window.innerWidth / window.innerHeight;
+                App3D.camera.updateProjectionMatrix(); App3D.renderer.setSize(window.innerWidth, window.innerHeight);
             },
-            
-            cleanup: () => { 
-                cancelAnimationFrame(App3D.animationId); 
-                window.removeEventListener('resize', App3D.onWindowResize); 
+            cleanup: () => {
+                if(App3D.animationId) cancelAnimationFrame(App3D.animationId);
+                window.removeEventListener('resize', App3D.onWindowResize);
             }
         };
 
-        // INISIALISASI
-        document.getElementById('form-login').addEventListener('submit', Auth.login); 
-        document.getElementById('form-register').addEventListener('submit', Auth.register); 
+        // EVENT LISTENERS
+        document.getElementById('form-login').addEventListener('submit', Auth.login);
+        document.getElementById('form-register').addEventListener('submit', Auth.register);
         document.addEventListener('DOMContentLoaded', UI.init);
-        
-        // Expose object ke window agar onlick HTML bisa membacanya
-        window.Auth = Auth; 
-        window.UI = UI; 
-        window.Kalkulator = Kalkulator; 
-        window.Encyclopedia = Encyclopedia; 
-        window.AIQuiz = AIQuiz; 
-        window.App3D = App3D; 
-        window.EclipseSim = EclipseSim;
+
+        window.Auth = Auth; window.UI = UI; window.Kalkulator = Kalkulator; window.Encyclopedia = Encyclopedia; window.AIQuiz = AIQuiz; window.App3D = App3D;
     </script>
 </body>
 </html>
